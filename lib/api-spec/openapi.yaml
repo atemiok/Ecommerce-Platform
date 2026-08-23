@@ -10,6 +10,10 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: storefront
+    description: Customer storefront operations
+  - name: orders
+    description: Customer order operations
 paths:
   /healthz:
     get:
@@ -24,6 +28,102 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /products:
+    get:
+      operationId: listProducts
+      tags: [storefront]
+      summary: List products
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: featured
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+  /products/{id}:
+    get:
+      operationId: getProduct
+      tags: [storefront]
+      summary: Get product details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Product not found
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [storefront]
+      summary: List product categories
+      responses:
+        "200":
+          description: Categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+  /storefront/summary:
+    get:
+      operationId: getStorefrontSummary
+      tags: [storefront]
+      summary: Get storefront highlights
+      responses:
+        "200":
+          description: Storefront summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StorefrontSummary"
+  /orders:
+    post:
+      operationId: createOrder
+      tags: [orders]
+      summary: Create a customer order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderInput"
+      responses:
+        "201":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          description: Invalid order
 components:
   schemas:
     HealthStatus:
@@ -33,4 +133,64 @@ components:
           type: string
       required:
         - status
+    Product:
+      type: object
+      required: [id, name, slug, description, price, category, imageUrl, rating, reviewCount, inStock, featured]
+      properties:
+        id: { type: number }
+        name: { type: string }
+        slug: { type: string }
+        description: { type: string }
+        price: { type: number }
+        compareAtPrice: { type: ["number", "null"] }
+        category: { type: string }
+        imageUrl: { type: string }
+        rating: { type: number }
+        reviewCount: { type: number }
+        inStock: { type: boolean }
+        featured: { type: boolean }
+        badge: { type: ["string", "null"] }
+    Category:
+      type: object
+      required: [name, slug, productCount]
+      properties:
+        name: { type: string }
+        slug: { type: string }
+        productCount: { type: number }
+    StorefrontSummary:
+      type: object
+      required: [featuredProducts, totalProducts, categoryCount]
+      properties:
+        featuredProducts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+        totalProducts: { type: number }
+        categoryCount: { type: number }
+    OrderItemInput:
+      type: object
+      required: [productId, quantity]
+      properties:
+        productId: { type: number }
+        quantity: { type: number, minimum: 1 }
+    OrderInput:
+      type: object
+      required: [customerName, email, shippingAddress, items]
+      properties:
+        customerName: { type: string, minLength: 1 }
+        email: { type: string }
+        shippingAddress: { type: string, minLength: 1 }
+        items:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/OrderItemInput"
+    Order:
+      type: object
+      required: [id, status, total, createdAt]
+      properties:
+        id: { type: number }
+        status: { type: string }
+        total: { type: number }
+        createdAt: { type: string }
 
