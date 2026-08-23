@@ -3,6 +3,7 @@ import { Link } from 'wouter';
 import { Check, Plus, Star } from 'lucide-react';
 import type { Product } from '@workspace/api-client-react';
 import { useCart } from '@/hooks/use-cart';
+import { formatKes } from '@/lib/format';
 
 function ProductImage({ product, className = '' }: { product: Product; className?: string }) {
   const [failed, setFailed] = useState(false);
@@ -39,8 +40,8 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
           <p className="mb-1 font-mono-ui text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{product.category}</p>
           <Link href={`/product/${product.id}`} className="block truncate font-medium tracking-[-0.01em] hover:text-accent" data-testid={`link-product-name-${product.id}`}>{product.name}</Link>
           <div className="mt-2 flex items-center gap-2">
-            <span className="font-mono-ui text-sm">${product.price.toFixed(2)}</span>
-            {product.compareAtPrice && <span className="font-mono-ui text-xs text-muted-foreground line-through">${product.compareAtPrice.toFixed(2)}</span>}
+            <span className="font-mono-ui text-sm">{formatKes(product.price)}</span>
+            {product.compareAtPrice && <span className="font-mono-ui text-xs text-muted-foreground line-through">{formatKes(product.compareAtPrice)}</span>}
             {product.rating > 0 && <span className="ml-1 flex items-center gap-1 text-xs text-muted-foreground"><Star className="h-3 w-3 fill-accent text-accent" /> {product.rating.toFixed(1)}</span>}
           </div>
         </div>

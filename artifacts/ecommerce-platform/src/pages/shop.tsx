@@ -32,17 +32,17 @@ export default function Shop() {
     <div className="page-shell py-12 md:py-16">
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div>
-          <p className="mb-4 font-mono-ui text-[10px] uppercase tracking-[0.2em] text-muted-foreground">The collection / {productsQuery.data?.length ?? '—'} objects</p>
-          <h1 className="font-display text-6xl leading-[.85] tracking-tight md:text-8xl">Shop well.</h1>
+          <p className="mb-4 font-mono-ui text-[10px] uppercase tracking-[0.2em] text-muted-foreground">The iLonito collection / {productsQuery.data?.length ?? '—'} pieces</p>
+          <h1 className="font-display text-6xl leading-[.85] tracking-tight md:text-8xl">Carry your story.</h1>
         </div>
-        <p className="max-w-[240px] text-sm leading-6 text-muted-foreground">Useful things, unusual details, and a strong opinion about what deserves to be here.</p>
+        <p className="max-w-[240px] text-sm leading-6 text-muted-foreground">Handmade in Kenya. Bold leather pieces designed to grow more personal with every journey.</p>
       </div>
 
       <div className="mt-12 border-y border-border py-4">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex min-w-[220px] flex-1 items-center gap-2 border-b border-foreground/30 py-2 focus-within:border-accent sm:max-w-xs">
             <Search className="h-4 w-4 text-muted-foreground" />
-            <input value={search} onChange={(event) => setSearch(event.target.value)} className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground" placeholder="Search the collection" aria-label="Search collection" data-testid="input-shop-search" />
+            <input value={search} onChange={(event) => setSearch(event.target.value)} className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground" placeholder="Search iLonito leather" aria-label="Search iLonito leather" data-testid="input-shop-search" />
             {search && <button onClick={() => setSearch('')} aria-label="Clear search" className="text-muted-foreground hover:text-foreground" data-testid="button-clear-search"><X className="h-4 w-4" /></button>}
           </div>
           <button onClick={() => setFiltersOpen((open) => !open)} className={`inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-xs transition-colors ${filtersOpen ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:border-primary'}`} data-testid="button-toggle-filters"><SlidersHorizontal className="h-3.5 w-3.5" /> Filter</button>
