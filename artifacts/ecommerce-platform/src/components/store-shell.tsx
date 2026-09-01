@@ -89,8 +89,8 @@ export function StoreShell({ children }: PropsWithChildren) {
       <footer>
         <div className="container">
           <div className="footer-wordmark"><h2>ILONITO</h2><p>Narok · Kenya · Worldwide Requests</p></div>
-          <div className="footer-grid">
-            <div><h4>Atelier</h4><Link href="/shop">Shop all</Link><Link href="/shop?category=Handbags">Handbags</Link><a href={wa('Hello iLonito, I would like a bespoke piece.')} target="_blank" rel="noreferrer">Bespoke</a></div>
+           <div className="footer-grid">
+             <div><h4>Atelier</h4><Link href="/shop">Shop all</Link><Link href="/shop?category=Handbags">Handbags</Link><Link href="/custom-order">Bespoke</Link></div>
             <div><h4>Maison</h4><Link href="/about">Our Story</Link><a href="/about#craft">Craftsmanship</a><a href="/about#care">Care Guide</a></div>
             <div><h4>Client Care</h4><Link href="/contact">Contact</Link><a href="/contact#shipping">Shipping</a><a href="tel:+254714075180">Call the atelier</a></div>
             <div><h4>Newsletter</h4><form onSubmit={(event) => { event.preventDefault(); }}><input aria-label="Email for newsletter" placeholder="YOUR EMAIL" type="email" required /><button type="submit">→</button></form><p>Subscribe for private drops.</p></div>

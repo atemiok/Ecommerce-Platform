@@ -15,6 +15,7 @@ import Checkout from '@/pages/checkout';
 import OrderSuccess from '@/pages/order-success';
 import About from '@/pages/about';
 import Contact from '@/pages/contact';
+import CustomOrder from '@/pages/custom-order';
 import Admin from '@/pages/admin';
 import { StoreShell } from '@/components/store-shell';
 import {
@@ -168,6 +169,7 @@ function Router() {
               <Route path="/shop" component={Shop} />
               <Route path="/about" component={About} />
               <Route path="/contact" component={Contact} />
+              <Route path="/custom-order" component={CustomOrder} />
               <Route path="/product/:id" component={ProductPage} />
               <Route path="/cart" component={Cart} />
               <Route path="/checkout" component={Checkout} />

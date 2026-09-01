@@ -70,7 +70,7 @@ export default function Home() {
 
       <section className="category-band"><div className="category-grid">
         {categories.map((category, index) => <Link className="category-card" href={`/shop?category=${encodeURIComponent(category.name)}`} key={category.name}><img src={category.image} alt={category.name} /><div><span>{String(index + 1).padStart(2, '0')}</span><h3>{category.name}</h3></div></Link>)}
-        <a className="category-card bespoke-card" href={wa('Hello iLonito, I would like to discuss a bespoke leather piece.')} target="_blank" rel="noreferrer"><span>05</span><h3>Bespoke</h3><p>Custom design service</p></a>
+         <Link className="category-card bespoke-card" href="/custom-order"><span>05</span><h3>Bespoke</h3><p>Custom design service</p></Link>
       </div></section>
 
       <section className="craft"><div className="craft-grid">
