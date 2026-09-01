@@ -107,6 +107,20 @@ export const GetStorefrontSummaryResponse = zod.object({
 
 
 /**
+ * @summary Get the active storefront promotion
+ */
+export const GetActivePromotionResponse = zod.union([zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "message": zod.string(),
+  "discountText": zod.string().nullish(),
+  "code": zod.string().nullish(),
+  "ctaLabel": zod.string(),
+  "ctaUrl": zod.string()
+}),zod.null()])
+
+
+/**
  * @summary Create a customer order
  */
 
@@ -299,6 +313,138 @@ export const DeleteAdminProductParams = zod.object({
 })
 
 export const DeleteAdminProductResponse = zod.void()
+
+
+/**
+ * @summary List promotions
+ */
+
+
+
+
+
+
+export const ListAdminPromotionsResponseItem = zod.object({
+  "title": zod.string().min(1),
+  "message": zod.string().min(1),
+  "discountText": zod.string().nullish(),
+  "code": zod.string().nullish(),
+  "ctaLabel": zod.string().min(1),
+  "ctaUrl": zod.string().min(1),
+  "active": zod.boolean(),
+  "startsAt": zod.coerce.date().nullable(),
+  "endsAt": zod.coerce.date().nullable()
+}).and(zod.object({
+  "id": zod.number(),
+  "startsAt": zod.coerce.date().nullable(),
+  "endsAt": zod.coerce.date().nullable(),
+  "createdAt": zod.coerce.date()
+}))
+export const ListAdminPromotionsResponse = zod.array(ListAdminPromotionsResponseItem)
+
+
+/**
+ * @summary Create a promotion
+ */
+
+
+
+
+
+
+export const CreateAdminPromotionBody = zod.object({
+  "title": zod.string().min(1),
+  "message": zod.string().min(1),
+  "discountText": zod.string().nullish(),
+  "code": zod.string().nullish(),
+  "ctaLabel": zod.string().min(1),
+  "ctaUrl": zod.string().min(1),
+  "active": zod.boolean(),
+  "startsAt": zod.coerce.date().nullish(),
+  "endsAt": zod.coerce.date().nullish()
+})
+
+
+
+
+
+
+
+export const CreateAdminPromotionResponse = zod.object({
+  "title": zod.string().min(1),
+  "message": zod.string().min(1),
+  "discountText": zod.string().nullish(),
+  "code": zod.string().nullish(),
+  "ctaLabel": zod.string().min(1),
+  "ctaUrl": zod.string().min(1),
+  "active": zod.boolean(),
+  "startsAt": zod.coerce.date().nullable(),
+  "endsAt": zod.coerce.date().nullable()
+}).and(zod.object({
+  "id": zod.number(),
+  "startsAt": zod.coerce.date().nullable(),
+  "endsAt": zod.coerce.date().nullable(),
+  "createdAt": zod.coerce.date()
+}))
+
+
+/**
+ * @summary Update a promotion
+ */
+export const UpdateAdminPromotionParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+
+
+
+
+
+export const UpdateAdminPromotionBody = zod.object({
+  "title": zod.string().min(1),
+  "message": zod.string().min(1),
+  "discountText": zod.string().nullish(),
+  "code": zod.string().nullish(),
+  "ctaLabel": zod.string().min(1),
+  "ctaUrl": zod.string().min(1),
+  "active": zod.boolean(),
+  "startsAt": zod.coerce.date().nullish(),
+  "endsAt": zod.coerce.date().nullish()
+})
+
+
+
+
+
+
+
+export const UpdateAdminPromotionResponse = zod.object({
+  "title": zod.string().min(1),
+  "message": zod.string().min(1),
+  "discountText": zod.string().nullish(),
+  "code": zod.string().nullish(),
+  "ctaLabel": zod.string().min(1),
+  "ctaUrl": zod.string().min(1),
+  "active": zod.boolean(),
+  "startsAt": zod.coerce.date().nullable(),
+  "endsAt": zod.coerce.date().nullable()
+}).and(zod.object({
+  "id": zod.number(),
+  "startsAt": zod.coerce.date().nullable(),
+  "endsAt": zod.coerce.date().nullable(),
+  "createdAt": zod.coerce.date()
+}))
+
+
+/**
+ * @summary Delete a promotion
+ */
+export const DeleteAdminPromotionParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteAdminPromotionResponse = zod.void()
 
 
 /**

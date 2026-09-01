@@ -40,6 +40,47 @@ export interface StorefrontSummary {
   categoryCount: number;
 }
 
+export interface Promotion {
+  id: number;
+  title: string;
+  message: string;
+  /** @nullable */
+  discountText?: string | null;
+  /** @nullable */
+  code?: string | null;
+  ctaLabel: string;
+  ctaUrl: string;
+}
+
+export interface AdminPromotionInput {
+  /** @minLength 1 */
+  title: string;
+  /** @minLength 1 */
+  message: string;
+  /** @nullable */
+  discountText?: string | null;
+  /** @nullable */
+  code?: string | null;
+  /** @minLength 1 */
+  ctaLabel: string;
+  /** @minLength 1 */
+  ctaUrl: string;
+  active: boolean;
+  /** @nullable */
+  startsAt?: string | null;
+  /** @nullable */
+  endsAt?: string | null;
+}
+
+export type AdminPromotion = AdminPromotionInput & ({
+  id: number;
+  /** @nullable */
+  startsAt: string | null;
+  /** @nullable */
+  endsAt: string | null;
+  createdAt: string;
+});
+
 export interface OrderItemInput {
   productId: number;
   /** @minimum 1 */

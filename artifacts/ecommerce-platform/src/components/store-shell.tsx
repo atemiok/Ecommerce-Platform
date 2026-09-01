@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { FormEvent, PropsWithChildren } from 'react';
 import { Link, useLocation } from 'wouter';
+import { useGetActivePromotion } from '@workspace/api-client-react';
 import { useCart } from '@/hooks/use-cart';
 import { formatKes } from '@/lib/format';
 
@@ -17,6 +18,22 @@ export function StoreShell({ children }: PropsWithChildren) {
   const [cartOpen, setCartOpen] = useState(false);
   const [search, setSearch] = useState('');
   const { items, itemCount, subtotal, updateQuantity, removeItem } = useCart();
+  const promotionQuery = useGetActivePromotion();
+  const promotion = promotionQuery.data;
+  const [promoOpen, setPromoOpen] = useState(false);
+
+  useEffect(() => {
+    if (!promotion) return;
+    const dismissed = window.localStorage.getItem(`ilonito-promotion-dismissed-${promotion.id}`) === 'true';
+    if (dismissed) return;
+    const timer = window.setTimeout(() => setPromoOpen(true), 850);
+    return () => window.clearTimeout(timer);
+  }, [promotion]);
+
+  const dismissPromotion = () => {
+    if (promotion) window.localStorage.setItem(`ilonito-promotion-dismissed-${promotion.id}`, 'true');
+    setPromoOpen(false);
+  };
   const links = [{ href: '/shop', label: 'Shop' }, { href: '/contact', label: 'Contact' }, { href: '/about', label: 'About Us' }];
 
   const submitSearch = (event: FormEvent<HTMLFormElement>) => {
@@ -55,6 +72,19 @@ export function StoreShell({ children }: PropsWithChildren) {
         {items.length ? <><div className="cart-lines">{items.map(({ product, quantity }) => <article key={product.id} data-testid={`drawer-item-${product.id}`}><img src={product.imageUrl} alt={product.name} /><div><span>{product.category}</span><h2>{product.name}</h2><strong>{formatKes(product.price)}</strong><div className="cart-quantity"><button onClick={() => updateQuantity(product.id, quantity - 1)} aria-label={`Remove one ${product.name}`}>−</button><span>{quantity}</span><button onClick={() => updateQuantity(product.id, quantity + 1)} aria-label={`Add one ${product.name}`}>+</button></div></div><button className="cart-remove" onClick={() => removeItem(product.id)}>Remove</button></article>)}</div><div className="cart-foot"><div><span>Subtotal</span><strong>{formatKes(subtotal)}</strong></div><p>Delivery is arranged separately after payment.</p><Link href="/checkout" onClick={() => setCartOpen(false)} data-testid="link-drawer-checkout">Checkout <span>→</span></Link><button onClick={() => setCartOpen(false)}>Continue shopping</button></div></> : <div className="cart-empty"><p>Your bag is empty.</p><span>Choose a handcrafted piece to begin.</span><Link href="/shop" onClick={() => setCartOpen(false)}>Explore the shop</Link></div>}
       </aside>
       {cartOpen && <button className="cart-shade" onClick={() => setCartOpen(false)} aria-label="Close shopping bag" />}
+
+      {promotion && promoOpen && <div className="promotion-overlay" role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target) dismissPromotion(); }}>
+        <section className="promotion-popup" role="dialog" aria-modal="true" aria-labelledby="promotion-title">
+          <button className="promotion-close" onClick={dismissPromotion} aria-label="Close promotion">×</button>
+          <p className="promotion-kicker">A private note from the atelier</p>
+          {promotion.discountText && <strong className="promotion-discount">{promotion.discountText}</strong>}
+          <h2 id="promotion-title">{promotion.title}</h2>
+          <p className="promotion-message">{promotion.message}</p>
+          {promotion.code && <p className="promotion-code">Use code <b>{promotion.code}</b> at checkout</p>}
+          {promotion.ctaUrl.startsWith('/') ? <Link className="promotion-cta" href={promotion.ctaUrl} onClick={() => setPromoOpen(false)}>{promotion.ctaLabel} <span>→</span></Link> : <a className="promotion-cta" href={promotion.ctaUrl} target="_blank" rel="noreferrer" onClick={() => setPromoOpen(false)}>{promotion.ctaLabel} <span>↗</span></a>}
+          <button className="promotion-dismiss" onClick={dismissPromotion}>Not now</button>
+        </section>
+      </div>}
 
       <footer>
         <div className="container">

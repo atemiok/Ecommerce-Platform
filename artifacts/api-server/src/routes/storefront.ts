@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, gt, inArray, isNull, lte, or } from "drizzle-orm";
 import {
   CreateOrderBody,
   CreateOrderResponse,
@@ -10,7 +10,7 @@ import {
   ListProductsQueryParams,
   ListProductsResponse,
 } from "@workspace/api-zod";
-import { db, orderItemsTable, ordersTable, productsTable } from "@workspace/db";
+import { db, orderItemsTable, ordersTable, productsTable, promotionsTable } from "@workspace/db";
 
 const router: IRouter = Router();
 
@@ -93,6 +93,30 @@ router.get("/storefront/summary", async (_req, res) => {
     categoryCount: new Set(products.map((product) => product.category)).size,
   };
   res.json(GetStorefrontSummaryResponse.parse(data));
+});
+
+router.get("/promotions/active", async (_req, res) => {
+  const now = new Date();
+  const [promotion] = await db
+    .select()
+    .from(promotionsTable)
+    .where(and(
+      eq(promotionsTable.active, true),
+      or(isNull(promotionsTable.startsAt), lte(promotionsTable.startsAt, now)),
+      or(isNull(promotionsTable.endsAt), gt(promotionsTable.endsAt, now)),
+    ))
+    .orderBy(desc(promotionsTable.createdAt))
+    .limit(1);
+
+  res.json(promotion ? {
+    id: promotion.id,
+    title: promotion.title,
+    message: promotion.message,
+    discountText: promotion.discountText,
+    code: promotion.code,
+    ctaLabel: promotion.ctaLabel,
+    ctaUrl: promotion.ctaUrl,
+  } : null);
 });
 
 router.post("/orders", async (req, res) => {

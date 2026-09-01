@@ -6,15 +6,20 @@ import {
   AdminOrderStatusInputStatus,
   getListAdminOrdersQueryKey,
   getListAdminProductsQueryKey,
+  getListAdminPromotionsQueryKey,
   useCreateAdminProduct,
+  useCreateAdminPromotion,
   useDeleteAdminProduct,
+  useDeleteAdminPromotion,
   useGetAdminSummary,
   useListAdminOrders,
   useListAdminProducts,
+  useListAdminPromotions,
   useUpdateAdminOrderStatus,
   useUpdateAdminProduct,
+  useUpdateAdminPromotion,
 } from '@workspace/api-client-react';
-import type { AdminOrder, AdminProduct, AdminProductInput, AdminSummary, AdminOrderStatusInput } from '@workspace/api-client-react';
+import type { AdminOrder, AdminProduct, AdminProductInput, AdminSummary, AdminOrderStatusInput, AdminPromotion, AdminPromotionInput } from '@workspace/api-client-react';
 import {
   Archive,
   ArrowDownToLine,
@@ -28,18 +33,22 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Megaphone,
   Package,
+  Pencil,
   Plus,
   Search,
   SlidersHorizontal,
   Sparkles,
   Tag,
+  Trash2,
   X,
 } from 'lucide-react';
 import { formatKes } from '@/lib/format';
 
-type View = 'overview' | 'catalog' | 'orders';
+type View = 'overview' | 'catalog' | 'promotions' | 'orders';
 type ProductDraft = AdminProductInput;
+type PromotionDraft = AdminPromotionInput;
 
 const statuses = Object.values(AdminOrderStatusInputStatus);
 const categories = ['All categories', 'Bags', 'Wallets', 'Shoes', 'Belts', 'Coasters', 'Beadwork', 'Journals'];
@@ -59,6 +68,29 @@ const emptyDraft: ProductDraft = {
   featured: false,
   badge: null,
 };
+
+const emptyPromotion: PromotionDraft = {
+  title: '',
+  message: '',
+  discountText: '',
+  code: '',
+  ctaLabel: 'Shop the collection',
+  ctaUrl: '/shop',
+  active: true,
+  startsAt: null,
+  endsAt: null,
+};
+
+function dateTimeInputValue(value: string | null | undefined) {
+  if (!value) return '';
+  const date = new Date(value);
+  const offset = date.getTimezoneOffset();
+  return new Date(date.getTime() - offset * 60_000).toISOString().slice(0, 16);
+}
+
+function dateTimeIsoValue(value: string | null) {
+  return value ? new Date(value).toISOString() : null;
+}
 
 function IconButton({ label, children, onClick, className = '' }: { label: string; children: React.ReactNode; onClick: () => void; className?: string }) {
   return <button type="button" className={`admin-icon-button ${className}`} aria-label={label} data-testid={`button-${label.toLowerCase().replaceAll(' ', '-')}`} onClick={onClick}>{children}</button>;
@@ -120,6 +152,87 @@ function ProductModal({ product, onClose, onSaved }: { product: AdminProduct | n
         <div className="admin-modal-actions"><button type="button" className="admin-button admin-button-quiet" onClick={onClose} data-testid="button-cancel-product">Cancel</button><button type="submit" className="admin-button admin-button-primary" disabled={saving} data-testid="button-save-product">{saving ? 'Saving…' : product ? 'Save changes' : 'Create product'}<ArrowUpRight size={15} /></button></div>
       </form>
     </section>
+  </div>;
+}
+
+function PromotionModal({ promotion, onClose, onSaved }: { promotion: AdminPromotion | null; onClose: () => void; onSaved: () => void }) {
+  const queryClient = useQueryClient();
+  const create = useCreateAdminPromotion();
+  const update = useUpdateAdminPromotion();
+  const [draft, setDraft] = useState<PromotionDraft>(() => promotion ? {
+    title: promotion.title,
+    message: promotion.message,
+    discountText: promotion.discountText ?? '',
+    code: promotion.code ?? '',
+    ctaLabel: promotion.ctaLabel,
+    ctaUrl: promotion.ctaUrl,
+    active: promotion.active,
+    startsAt: dateTimeInputValue(promotion.startsAt),
+    endsAt: dateTimeInputValue(promotion.endsAt),
+  } : emptyPromotion);
+  const saving = create.isPending || update.isPending;
+  const updateField = <K extends keyof PromotionDraft>(key: K, value: PromotionDraft[K]) => setDraft((current) => ({ ...current, [key]: value }));
+
+  const submit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const payload: AdminPromotionInput = {
+      ...draft,
+      title: draft.title.trim(),
+      message: draft.message.trim(),
+      discountText: draft.discountText?.trim() || null,
+      code: draft.code?.trim().toUpperCase() || null,
+      startsAt: dateTimeIsoValue(draft.startsAt ?? null),
+      endsAt: dateTimeIsoValue(draft.endsAt ?? null),
+    };
+    const onSuccess = () => {
+      queryClient.invalidateQueries({ queryKey: getListAdminPromotionsQueryKey() });
+      onSaved();
+    };
+    if (promotion) update.mutate({ id: promotion.id, data: payload }, { onSuccess });
+    else create.mutate({ data: payload }, { onSuccess });
+  };
+
+  return <div className="admin-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target) onClose(); }}>
+    <section className="admin-product-modal admin-promotion-modal" role="dialog" aria-modal="true" aria-labelledby="promotion-form-title">
+      <div className="admin-modal-header"><div><p className="admin-kicker">{promotion ? 'Promotion edit' : 'New campaign'}</p><h2 id="promotion-form-title">{promotion ? 'Refine promotion' : 'Create a promotion'}</h2></div><IconButton label="Close promotion editor" onClick={onClose}><X size={18} /></IconButton></div>
+      <form onSubmit={submit} className="admin-form">
+        <div className="admin-form-grid">
+          <label>Headline<input required value={draft.title} onChange={(event) => updateField('title', event.target.value)} placeholder="A little extra from the atelier" data-testid="input-promotion-title" /></label>
+          <label>Discount highlight<input value={draft.discountText ?? ''} onChange={(event) => updateField('discountText', event.target.value)} placeholder="15% off" data-testid="input-promotion-discount" /></label>
+          <label className="admin-form-wide">Message<textarea required rows={3} value={draft.message} onChange={(event) => updateField('message', event.target.value)} placeholder="A short note customers will see in the popup." data-testid="input-promotion-message" /></label>
+          <label>Promo code<input value={draft.code ?? ''} onChange={(event) => updateField('code', event.target.value)} placeholder="ILONITO15" data-testid="input-promotion-code" /></label>
+          <label>Button label<input required value={draft.ctaLabel} onChange={(event) => updateField('ctaLabel', event.target.value)} data-testid="input-promotion-cta-label" /></label>
+          <label>Button link<input required value={draft.ctaUrl} onChange={(event) => updateField('ctaUrl', event.target.value)} placeholder="/shop" data-testid="input-promotion-cta-url" /></label>
+          <label>Starts at<input type="datetime-local" value={draft.startsAt ?? ''} onChange={(event) => updateField('startsAt', event.target.value || null)} data-testid="input-promotion-starts-at" /></label>
+          <label>Ends at<input type="datetime-local" value={draft.endsAt ?? ''} onChange={(event) => updateField('endsAt', event.target.value || null)} data-testid="input-promotion-ends-at" /></label>
+        </div>
+        <div className="admin-checks">
+          <label className="admin-check"><input type="checkbox" checked={draft.active} onChange={(event) => updateField('active', event.target.checked)} data-testid="checkbox-promotion-active" /><span>Show this promotion on the storefront</span></label>
+        </div>
+        {(create.isError || update.isError) && <p className="admin-form-error" data-testid="status-promotion-error">We could not save this promotion. Check the dates and fields, then try again.</p>}
+        <div className="admin-modal-actions"><button type="button" className="admin-button admin-button-quiet" onClick={onClose} data-testid="button-cancel-promotion">Cancel</button><button type="submit" className="admin-button admin-button-primary" disabled={saving} data-testid="button-save-promotion">{saving ? 'Saving…' : promotion ? 'Save changes' : 'Create promotion'}<ArrowUpRight size={15} /></button></div>
+      </form>
+    </section>
+  </div>;
+}
+
+function Promotions({ promotions, onEdit, onNew }: { promotions: AdminPromotion[]; onEdit: (promotion: AdminPromotion) => void; onNew: () => void }) {
+  const queryClient = useQueryClient();
+  const remove = useDeleteAdminPromotion();
+
+  const deletePromotion = (promotion: AdminPromotion) => {
+    if (!window.confirm(`Delete “${promotion.title}”?`)) return;
+    remove.mutate({ id: promotion.id }, {
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: getListAdminPromotionsQueryKey() }),
+    });
+  };
+
+  return <div className="admin-content">
+    <div className="admin-page-intro animate-rise"><div><p className="admin-kicker">Customer moments</p><h1>Discounts & <em>promos.</em></h1><p className="admin-intro-copy">Create a thoughtful reason to return. Active promotions appear as a popup on the storefront.</p></div><button className="admin-button admin-button-primary" onClick={onNew} data-testid="button-new-promotion"><Plus size={15} /> New promotion</button></div>
+    {!promotions.length ? <div className="admin-empty-state"><Megaphone size={22} /><h2>No promotions yet</h2><p>Launch your first discount, private drop, or seasonal note.</p><button className="admin-button admin-button-outline" onClick={onNew}>Create a promotion <ArrowUpRight size={15} /></button></div> : <div className="promotion-admin-grid">{promotions.map((promotion) => <article className={`promotion-admin-card ${promotion.active ? 'is-active' : ''}`} key={promotion.id} data-testid={`card-promotion-${promotion.id}`}>
+      <div className="promotion-admin-card-top"><span className={`admin-promo-status ${promotion.active ? 'is-active' : ''}`}>{promotion.active ? 'Live on storefront' : 'Draft'}</span><div><button className="admin-icon-button" onClick={() => onEdit(promotion)} aria-label={`Edit ${promotion.title}`} data-testid={`button-edit-promotion-${promotion.id}`}><Pencil size={15} /></button><button className="admin-icon-button admin-danger-icon" onClick={() => deletePromotion(promotion)} aria-label={`Delete ${promotion.title}`} data-testid={`button-delete-promotion-${promotion.id}`}><Trash2 size={15} /></button></div></div>
+      {promotion.discountText && <strong className="promotion-admin-discount">{promotion.discountText}</strong>}<h2>{promotion.title}</h2><p>{promotion.message}</p>{promotion.code && <span className="promotion-admin-code">Code: {promotion.code}</span>}<div className="promotion-admin-meta"><span>{promotion.ctaLabel}</span><span>{promotion.startsAt ? new Date(promotion.startsAt).toLocaleDateString() : 'Now'} — {promotion.endsAt ? new Date(promotion.endsAt).toLocaleDateString() : 'No expiry'}</span></div>
+    </article>)}</div>}
   </div>;
 }
 
@@ -187,23 +300,27 @@ export default function Admin() {
   const [view, setView] = useState<View>('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [productEditor, setProductEditor] = useState<AdminProduct | null | undefined>(undefined);
+  const [promotionEditor, setPromotionEditor] = useState<AdminPromotion | null | undefined>(undefined);
   const summaryQuery = useGetAdminSummary({ query: { enabled: isSignedIn === true, queryKey: ['/api/admin/summary'] } });
   const productsQuery = useListAdminProducts({ query: { enabled: isSignedIn === true, queryKey: getListAdminProductsQueryKey() } });
+  const promotionsQuery = useListAdminPromotions({ query: { enabled: isSignedIn === true, queryKey: getListAdminPromotionsQueryKey() } });
   const ordersQuery = useListAdminOrders({ query: { enabled: isSignedIn === true, queryKey: getListAdminOrdersQueryKey() } });
   const summary = summaryQuery.data;
   const products = productsQuery.data ?? [];
+  const promotions = promotionsQuery.data ?? [];
   const orders = ordersQuery.data ?? [];
-  const loading = !isLoaded || (isSignedIn === true && (summaryQuery.isLoading || productsQuery.isLoading || ordersQuery.isLoading));
-  const error = summaryQuery.isError || productsQuery.isError || ordersQuery.isError;
+  const loading = !isLoaded || (isSignedIn === true && (summaryQuery.isLoading || productsQuery.isLoading || promotionsQuery.isLoading || ordersQuery.isLoading));
+  const error = summaryQuery.isError || productsQuery.isError || promotionsQuery.isError || ordersQuery.isError;
 
   if (loading) return <AdminSkeleton />;
   if (!isSignedIn) return <div className="admin-auth-state"><div className="auth-seal">i</div><p className="admin-kicker">Private workspace</p><h1>Enter the <em>atelier.</em></h1><p>Sign in with your iLonito operations account to manage the collection and customer orders.</p><button className="admin-button admin-button-primary" onClick={() => setLocation('/sign-in?redirect_url=%2Fadmin')} data-testid="button-admin-sign-in">Sign in to admin <ArrowUpRight size={15} /></button><button className="admin-auth-link" onClick={() => setLocation('/')} data-testid="link-return-store">Return to storefront</button></div>;
   if (error || !summary) return <div className="admin-auth-state"><div className="auth-seal">i</div><p className="admin-kicker">Private workspace</p><h1>We could not open the <em>atelier.</em></h1><p>Your admin session may have expired, or the workspace is taking a moment to respond.</p><button className="admin-button admin-button-primary" onClick={() => { summaryQuery.refetch(); productsQuery.refetch(); ordersQuery.refetch(); }} data-testid="button-retry-admin">Try again <ArrowUpRight size={15} /></button><button className="admin-auth-link" onClick={() => setLocation('/')} data-testid="link-return-store">Return to storefront</button></div>;
 
-  const nav = [{ id: 'overview' as const, label: 'Overview', icon: LayoutDashboard }, { id: 'catalog' as const, label: 'Catalog', icon: Package }, { id: 'orders' as const, label: 'Orders', icon: ClipboardList }];
+  const nav = [{ id: 'overview' as const, label: 'Overview', icon: LayoutDashboard }, { id: 'catalog' as const, label: 'Catalog', icon: Package }, { id: 'promotions' as const, label: 'Promotions', icon: Megaphone }, { id: 'orders' as const, label: 'Orders', icon: ClipboardList }];
   return <div className="admin-workspace">{sidebarOpen && <button className="admin-mobile-shade" onClick={() => setSidebarOpen(false)} aria-label="Close navigation" data-testid="button-close-navigation" />}
      <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}><div className="admin-brand"><span className="brand-monogram">i</span><div><b>ILONITO</b><small>Atelier operations</small></div><IconButton label="Close navigation" className="admin-sidebar-close" onClick={() => setSidebarOpen(false)}><X size={17} /></IconButton></div><div className="admin-nav-label">Workspace</div><nav>{nav.map(({ id, label, icon: NavIcon }) => <button className={`admin-nav-item ${view === id ? 'active' : ''}`} onClick={() => { setView(id); setSidebarOpen(false); }} key={id} data-testid={`button-nav-${id}`}><NavIcon size={17} /><span>{label}</span>{id === 'orders' && summary.pendingOrders > 0 && <i>{summary.pendingOrders}</i>}</button>)}</nav><div className="admin-sidebar-bottom"><div className="admin-side-status"><span /><div><b>Storefront live</b><small>Narok, Kenya</small></div></div><a href="/" className="admin-store-link" data-testid="link-view-storefront">View storefront <ExternalLink size={13} /></a><button className="admin-signout" onClick={() => signOut({ redirectUrl: basePath || '/' })} data-testid="button-sign-out"><LogOut size={16} /> Sign out</button></div></aside>
-    <main className="admin-main"><header className="admin-topbar"><button className="admin-menu-trigger" onClick={() => setSidebarOpen(true)} aria-label="Open navigation" data-testid="button-open-navigation"><Menu size={20} /></button><div className="admin-breadcrumb"><span>iLonito</span><ChevronLeft size={13} /><b>{nav.find((item) => item.id === view)?.label}</b></div><div className="admin-top-actions"><span className="admin-live-dot" /> <span className="admin-live-text">Live</span><button className="admin-avatar" aria-label="Signed-in profile" data-testid="button-profile">AM</button></div></header>{view === 'overview' && <Overview summary={summary} orders={orders} onViewOrders={() => setView('orders')} />}{view === 'catalog' && <Catalog products={products} onEdit={(product) => setProductEditor(product)} onNew={() => setProductEditor(null)} />}{view === 'orders' && <Orders orders={orders} />}</main>
+     <main className="admin-main"><header className="admin-topbar"><button className="admin-menu-trigger" onClick={() => setSidebarOpen(true)} aria-label="Open navigation" data-testid="button-open-navigation"><Menu size={20} /></button><div className="admin-breadcrumb"><span>iLonito</span><ChevronLeft size={13} /><b>{nav.find((item) => item.id === view)?.label}</b></div><div className="admin-top-actions"><span className="admin-live-dot" /> <span className="admin-live-text">Live</span><button className="admin-avatar" aria-label="Signed-in profile" data-testid="button-profile">AM</button></div></header>{view === 'overview' && <Overview summary={summary} orders={orders} onViewOrders={() => setView('orders')} />}{view === 'catalog' && <Catalog products={products} onEdit={(product) => setProductEditor(product)} onNew={() => setProductEditor(null)} />}{view === 'promotions' && <Promotions promotions={promotions} onEdit={(promotion) => setPromotionEditor(promotion)} onNew={() => setPromotionEditor(null)} />}{view === 'orders' && <Orders orders={orders} />}</main>
     {productEditor !== undefined && <ProductModal product={productEditor} onClose={() => setProductEditor(undefined)} onSaved={() => setProductEditor(undefined)} />}
+    {promotionEditor !== undefined && <PromotionModal promotion={promotionEditor} onClose={() => setPromotionEditor(undefined)} onSaved={() => setPromotionEditor(undefined)} />}
   </div>;
 }

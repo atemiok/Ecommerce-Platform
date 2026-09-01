@@ -2,7 +2,7 @@ import { Router, type IRouter, type RequestHandler } from "express";
 import { and, desc, eq, inArray, ne } from "drizzle-orm";
 import { z } from "zod";
 import { getAuth } from "@clerk/express";
-import { db, orderItemsTable, ordersTable, productsTable } from "@workspace/db";
+import { db, orderItemsTable, ordersTable, productsTable, promotionsTable } from "@workspace/db";
 
 const router: IRouter = Router();
 
@@ -26,6 +26,21 @@ const orderStatusSchema = z.object({
   status: z.enum(["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"]),
 });
 
+const promotionInputSchema = z.object({
+  title: z.string().trim().min(1),
+  message: z.string().trim().min(1),
+  discountText: z.string().trim().nullable().optional(),
+  code: z.string().trim().nullable().optional(),
+  ctaLabel: z.string().trim().min(1),
+  ctaUrl: z.string().trim().min(1),
+  active: z.boolean(),
+  startsAt: z.coerce.date().nullable().optional(),
+  endsAt: z.coerce.date().nullable().optional(),
+}).refine((input) => !input.startsAt || !input.endsAt || input.endsAt > input.startsAt, {
+  message: "End date must be after the start date",
+  path: ["endsAt"],
+});
+
 function toProductDto(product: typeof productsTable.$inferSelect) {
   return {
     id: product.id,
@@ -42,6 +57,22 @@ function toProductDto(product: typeof productsTable.$inferSelect) {
     inStock: product.inStock,
     featured: product.featured,
     badge: product.badge,
+  };
+}
+
+function toPromotionDto(promotion: typeof promotionsTable.$inferSelect) {
+  return {
+    id: promotion.id,
+    title: promotion.title,
+    message: promotion.message,
+    discountText: promotion.discountText,
+    code: promotion.code,
+    ctaLabel: promotion.ctaLabel,
+    ctaUrl: promotion.ctaUrl,
+    active: promotion.active,
+    startsAt: promotion.startsAt?.toISOString() ?? null,
+    endsAt: promotion.endsAt?.toISOString() ?? null,
+    createdAt: promotion.createdAt.toISOString(),
   };
 }
 
@@ -196,6 +227,45 @@ router.delete("/admin/products/:id", async (req, res) => {
   }
 
   await db.delete(productsTable).where(eq(productsTable.id, id));
+  res.status(204).send();
+});
+
+router.get("/admin/promotions", async (_req, res) => {
+  const promotions = await db.select().from(promotionsTable).orderBy(desc(promotionsTable.createdAt));
+  res.json(promotions.map(toPromotionDto));
+});
+
+router.post("/admin/promotions", async (req, res) => {
+  const input = promotionInputSchema.parse(req.body);
+  const [promotion] = await db.insert(promotionsTable).values(input).returning();
+  res.status(201).json(toPromotionDto(promotion));
+});
+
+router.patch("/admin/promotions/:id", async (req, res) => {
+  const id = z.coerce.number().int().positive().parse(req.params.id);
+  const input = promotionInputSchema.parse(req.body);
+  const [promotion] = await db
+    .update(promotionsTable)
+    .set(input)
+    .where(eq(promotionsTable.id, id))
+    .returning();
+  if (!promotion) {
+    res.status(404).json({ error: "Promotion not found" });
+    return;
+  }
+  res.json(toPromotionDto(promotion));
+});
+
+router.delete("/admin/promotions/:id", async (req, res) => {
+  const id = z.coerce.number().int().positive().parse(req.params.id);
+  const [promotion] = await db
+    .delete(promotionsTable)
+    .where(eq(promotionsTable.id, id))
+    .returning({ id: promotionsTable.id });
+  if (!promotion) {
+    res.status(404).json({ error: "Promotion not found" });
+    return;
+  }
   res.status(204).send();
 });
 
