@@ -497,9 +497,14 @@ h3,h4{font-weight:500!important;letter-spacing:-.018em}
 .hero-subtitle{margin:0 0 1.5rem;opacity:.8;font-size:.875rem;line-height:1.6;letter-spacing:.04em}
 .pill-button,.concierge-button{display:inline-flex;align-items:center;gap:1rem;padding:.95rem 2rem;color:#fff;background:var(--wine);border-radius:0;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;transition:background .35s,transform .35s}
 .pill-button:hover,.concierge-button:hover{background:#651919;transform:translateY(-2px)}
-.marquee{overflow:hidden;padding:.75rem 0;background:var(--stone);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.marquee>div{width:max-content;white-space:nowrap;animation:marquee 25s linear infinite}
-.marquee span{margin:0 3rem;opacity:.4;font-size:1.25rem;font-style:italic;letter-spacing:.3em;text-transform:uppercase}
+.marquee{overflow:hidden;padding:.8rem 0;background:var(--stone);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.marquee-track{display:flex;width:max-content;white-space:nowrap;animation:marquee 25s linear infinite}
+.marquee-set{display:inline-flex;align-items:center;gap:1.7rem;padding:0 2.2rem;color:var(--ink);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase}
+.marquee-set>*{display:inline-flex;align-items:center;gap:1.7rem}
+.marquee-set>*+*::before{content:"✦";color:var(--gold);font-size:.55rem;font-style:normal;letter-spacing:0}
+.marquee-set strong{font-weight:600;letter-spacing:.25em}
+.marquee-set i{color:var(--muted);font-style:normal;font-weight:500}
+.marquee-set em{color:var(--wine);font-family:var(--font-ui)!important;font-size:.65rem;font-style:italic;letter-spacing:.14em}
 @keyframes marquee{to{transform:translateX(-50%)}}
 
 /* Admin workspace — a quiet ledger in oxblood, parchment and brass. */

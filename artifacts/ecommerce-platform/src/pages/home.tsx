@@ -46,7 +46,20 @@ export default function Home() {
         </div></div>
       </header>
 
-      <div className="marquee"><div><span>Narok Atelier — Handcrafted in Kenya — African Luxury</span><span>Narok Atelier — Handcrafted in Kenya — African Luxury</span></div></div>
+      <div className="marquee" aria-label="Narok Atelier — Handcrafted in Kenya — African Luxury">
+        <div className="marquee-track">
+          <span className="marquee-set">
+            <strong>Narok Atelier</strong>
+            <i>Handcrafted in Kenya</i>
+            <em>African Luxury</em>
+          </span>
+          <span className="marquee-set" aria-hidden="true">
+            <strong>Narok Atelier</strong>
+            <i>Handcrafted in Kenya</i>
+            <em>African Luxury</em>
+          </span>
+        </div>
+      </div>
 
       <section className="collections">
         <div className="container">
