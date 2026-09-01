@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        window.FontAwesomeConfig = {
+          autoReplaceSvg: 'nest'
+        };
+      </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ilonito | Handcrafted Luxury Leather Goods</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-bg': '#F9F7F2',
+                        'brand-surface': '#F2EFE9',
+                        'brand-elevated': '#EBE7DF',
+                        'brand-border': '#D9D2C5',
+                        'brand-text': '#1A1712',
+                        'brand-muted': '#5C5852',
+                        'brand-faint': '#9C958C',
+                        'brand-accent': '#4A0E0E',
+                        'brand-gold': '#C5A059',
+                    },
+                    borderRadius: {
+                        'jumbo': '2rem',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif'],
+                    },
+                    keyframes: {
+                        marquee: {
+                            '0%': { transform: 'translateX(0)' },
+                            '100%': { transform: 'translateX(-50%)' },
+                        },
+                    },
+                    animation: {
+                        marquee: 'marquee 25s linear infinite',
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: currentColor;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease;
+        }
+        .nav-link:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #F9F7F2; }
+        ::-webkit-scrollbar-thumb { background: #D9D2C5; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-brand-bg font-sans text-brand-text overflow-x-hidden antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed top-6 left-1/2 -translate-x-1/2 w-[90%] max-w-7xl z-50 bg-brand-surface/90 backdrop-blur-md rounded-full px-8 py-3.5 flex justify-between items-center border border-brand-border shadow-sm">
+        <div class="flex items-center gap-8">
+            <a href="#" class="font-serif text-xl tracking-tighter text-brand-accent font-bold">ILONITO</a>
+            <ul class="hidden md:flex gap-6 text-[10px] uppercase tracking-[0.2em] font-bold">
+                <li><a href="#" class="relative nav-link text-brand-accent flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-brand-gold"></span> New</a></li>
+                <li><a href="#collections" class="relative nav-link">Collections</a></li>
+                <li><a href="#craft" class="relative nav-link">Craft</a></li>
+                <li><a href="#concierge" class="relative nav-link">Concierge</a></li>
+            </ul>
+        </div>
+        <div class="flex items-center gap-6 text-sm">
+            <button class="hover:text-brand-accent transition-colors"><i class="fas fa-search"></i></button>
+            <button class="hover:text-brand-accent transition-colors relative"><i class="far fa-heart"></i></button>
+            <button class="hover:text-brand-accent transition-colors flex items-center gap-2">
+                <i class="fas fa-shopping-bag"></i>
+                <span class="text-[9px] bg-brand-accent text-white w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">0</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative h-[80vh] w-full flex items-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img class="w-full h-full object-cover" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/gen_6841bdb962_239d6ef457785fae.png" alt="cinematic editorial fashion photo of a model holding a structured raw leather tote bag, warm earthy " />
+            <div class="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent"></div>
+        </div>
+        <div class="container mx-auto px-10 relative z-10">
+            <div class="max-w-2xl text-white space-y-4">
+                <p class="text-[10px] uppercase tracking-[0.4em] font-bold text-brand-gold">Since 2022</p>
+                <h1 class="font-serif text-5xl md:text-7xl leading-tight">Handcrafted Luxury,<br>Made in Nairobi</h1>
+                <p class="text-sm uppercase tracking-widest opacity-80 font-light">African storytelling through distinctive leather craftsmanship</p>
+                <div class="pt-4">
+                    <a href="#collections" class="inline-flex items-center gap-4 bg-brand-accent text-white px-10 py-4 rounded-full uppercase text-[10px] font-bold tracking-[0.2em] hover:bg-white hover:text-brand-accent transition-all duration-500">
+                        Shop New Collection <i class="fas fa-chevron-right text-[8px]"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Marquee -->
+    <div class="bg-brand-elevated py-3 overflow-hidden border-y border-brand-border">
+        <div class="animate-marquee whitespace-nowrap inline-block">
+            <span class="font-serif text-xl uppercase tracking-[0.3em] opacity-40 mx-12 italic">Nairobi Atelier — Handcrafted in Kenya — African Luxury</span>
+            <span class="font-serif text-xl uppercase tracking-[0.3em] opacity-40 mx-12 italic">Nairobi Atelier — Handcrafted in Kenya — African Luxury</span>
+        </div>
+    </div>
+
+    <!-- New Collection Grid (Compact) -->
+    <section id="collections" class="py-20 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex justify-between items-end mb-12">
+                <div>
+                    <p class="text-[10px] uppercase tracking-[0.3em] text-brand-faint mb-2 font-bold">Latest Release</p>
+                    <h2 class="font-serif text-4xl md:text-5xl">New Collection</h2>
+                </div>
+                <a href="#" class="text-[10px] uppercase font-bold tracking-[0.2em] hover:text-brand-accent transition-colors border-b border-brand-accent pb-1">View Archive</a>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Card 1 -->
+                <div class="group cursor-pointer">
+                    <div class="relative overflow-hidden rounded-jumbo aspect-[4/5] mb-4">
+                        <img class="w-full h-full object-cover transition-all duration-1000 group-hover:scale-110" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/gen_57c6271b06_7103752eb353cdc3.png" alt="minimalist tan leather crossbody bag, studio product photography, soft shadow" />
+                        <div class="absolute inset-0 bg-brand-accent/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
+                    <div class="space-y-1">
+                        <h3 class="font-serif text-lg">The Nomad Tote</h3>
+                        <p class="text-[9px] uppercase tracking-widest text-brand-faint font-bold">$420 &middot; Vegetable Tanned</p>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="group cursor-pointer">
+                    <div class="relative overflow-hidden rounded-jumbo aspect-[4/5] mb-4">
+                        <img class="w-full h-full object-cover transition-all duration-1000 group-hover:scale-110" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/gen_df1150bf0f_62f7f742eeed3b9b.png" alt="deep burgundy leather belt and wallet set, flat lay product photography" />
+                        <div class="absolute inset-0 bg-brand-accent/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
+                    <div class="space-y-1">
+                        <h3 class="font-serif text-lg">Essentials Set</h3>
+                        <p class="text-[9px] uppercase tracking-widest text-brand-faint font-bold">$185 &middot; Oxblood Series</p>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="group cursor-pointer">
+                    <div class="relative overflow-hidden rounded-jumbo aspect-[4/5] mb-4">
+                        <img class="w-full h-full object-cover transition-all duration-1000 group-hover:scale-110" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/gen_f1a7fb5141_715512a0c39f0797.png" alt="structured black leather laptop briefcase, studio product photography" />
+                        <div class="absolute inset-0 bg-brand-accent/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
+                    <div class="space-y-1">
+                        <h3 class="font-serif text-lg">Studio Briefcase</h3>
+                        <p class="text-[9px] uppercase tracking-widest text-brand-faint font-bold">$550 &middot; Professional</p>
+                    </div>
+                </div>
+                <!-- Card 4 -->
+                <div class="group cursor-pointer">
+                    <div class="relative overflow-hidden rounded-jumbo aspect-[4/5] mb-4">
+                        <img class="w-full h-full object-cover transition-all duration-1000 group-hover:scale-110" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/gen_453125552e_a9487688646a9154.png" alt="folded cognac leather travel duffel bag, luxury texture" />
+                        <div class="absolute inset-0 bg-brand-accent/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
+                    <div class="space-y-1">
+                        <h3 class="font-serif text-lg">Weekend Duffel</h3>
+                        <p class="text-[9px] uppercase tracking-widest text-brand-faint font-bold">$890 &middot; Heritage Travel</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Shop by Collection (Refined List) -->
+    <section class="py-20 bg-brand-elevated border-y border-brand-border">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <a href="#" class="group relative overflow-hidden rounded-2xl aspect-[4/5] bg-brand-surface flex flex-col justify-end p-6 border border-brand-border/50 hover:border-brand-accent transition-all duration-500">
+                    <img class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-60 grayscale group-hover:grayscale-0 transition-all duration-700" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/gen_d6c772898d_a7908aba1a2194a2.png" alt="leather handbag close up detail" />
+                    <div class="relative z-10">
+                        <span class="text-[9px] uppercase tracking-[0.2em] font-bold text-brand-faint group-hover:text-brand-accent transition-colors">01</span>
+                        <h3 class="font-serif text-2xl group-hover:translate-x-2 transition-transform duration-500">Handbags</h3>
+                    </div>
+                </a>
+                <a href="#" class="group relative overflow-hidden rounded-2xl aspect-[4/5] bg-brand-surface flex flex-col justify-end p-6 border border-brand-border/50 hover:border-brand-accent transition-all duration-500">
+                    <img class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-60 grayscale group-hover:grayscale-0 transition-all duration-700" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/gen_18f5b24f27_d088ab41eea57f0c.png" alt="leather travel duffel bag in workshop" />
+                    <div class="relative z-10">
+                        <span class="text-[9px] uppercase tracking-[0.2em] font-bold text-brand-faint group-hover:text-brand-accent transition-colors">02</span>
+                        <h3 class="font-serif text-2xl group-hover:translate-x-2 transition-transform duration-500">Travel</h3>
+                    </div>
+                </a>
+                <a href="#" class="group relative overflow-hidden rounded-2xl aspect-[4/5] bg-brand-surface flex flex-col justify-end p-6 border border-brand-border/50 hover:border-brand-accent transition-all duration-500">
+                    <img class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-60 grayscale group-hover:grayscale-0 transition-all duration-700" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/gen_e4aad71239_d0cc99ab3d04ac5a.png" alt="leather portfolio on desk" />
+                    <div class="relative z-10">
+                        <span class="text-[9px] uppercase tracking-[0.2em] font-bold text-brand-faint group-hover:text-brand-accent transition-colors">03</span>
+                        <h3 class="font-serif text-2xl group-hover:translate-x-2 transition-transform duration-500">Office</h3>
+                    </div>
+                </a>
+                <a href="#" class="group relative overflow-hidden rounded-2xl aspect-[4/5] bg-brand-surface flex flex-col justify-end p-6 border border-brand-border/50 hover:border-brand-accent transition-all duration-500">
+                    <img class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-60 grayscale group-hover:grayscale-0 transition-all duration-700" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/gen_2e64786e51_3b1ac9cf25651fff.png" alt="leather small accessories wallet" />
+                    <div class="relative z-10">
+                        <span class="text-[9px] uppercase tracking-[0.2em] font-bold text-brand-faint group-hover:text-brand-accent transition-colors">04</span>
+                        <h3 class="font-serif text-2xl group-hover:translate-x-2 transition-transform duration-500">Accessories</h3>
+                    </div>
+                </a>
+                <a href="#" class="group relative overflow-hidden rounded-2xl aspect-[4/5] bg-brand-accent flex flex-col justify-end p-6 text-white hover:bg-brand-gold transition-all duration-500">
+                    <div class="relative z-10">
+                        <span class="text-[9px] uppercase tracking-[0.2em] font-bold opacity-60">05</span>
+                        <h3 class="font-serif text-2xl">Bespoke</h3>
+                        <p class="text-[10px] mt-2 opacity-80 font-light">Custom Design Service</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Craftsmanship (Consolidated Grid) -->
+    <section id="craft" class="py-20 px-6 bg-brand-bg">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                <!-- Text Block -->
+                <div class="space-y-6">
+                    <p class="text-[10px] uppercase tracking-[0.3em] text-brand-gold font-bold">The Process</p>
+                    <h2 class="font-serif text-5xl leading-tight">The Art of Slow Making</h2>
+                    <p class="text-brand-muted font-light leading-relaxed">We reject industrial speed in favor of artisanal patience. Every Ilonito piece is a testament to the hands that made it — cutting, stitching, and finishing each item manually in our Nairobi atelier.</p>
+                    <div class="pt-4 flex items-center gap-6">
+                        <div class="flex items-center gap-2">
+                            <img class="w-12 h-12 rounded-full object-cover" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/gen_30cc7c3f98_b63dee9136dddbdb.png" alt="portrait of artisan Tabitha" />
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-widest">Tabitha O.</p>
+                                <p class="text-[9px] text-brand-faint uppercase font-bold">Founder</p>
+                            </div>
+                        </div>
+                        <a href="#" class="text-[10px] uppercase font-bold tracking-[0.2em] text-brand-accent hover:text-brand-gold transition-colors">Read Story</a>
+                    </div>
+                </div>
+                <!-- Step 1 & 2 -->
+                <div class="space-y-8">
+                    <div class="flex gap-6 items-center border-b border-brand-border pb-8">
+                        <div class="w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0">
+                            <img class="w-full h-full object-cover grayscale" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/gen_8700fb6fed_1cab71c19c51ab9f.png" alt="leather hides selection" />
+                        </div>
+                        <div>
+                            <h4 class="font-serif text-xl">Hide Sourcing</h4>
+                            <p class="text-[11px] text-brand-muted leading-relaxed mt-1">Ethical tanneries across East Africa provide our full-grain canvas.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-6 items-center border-b border-brand-border pb-8">
+                        <div class="w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0">
+                            <img class="w-full h-full object-cover grayscale" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/gen_66b939f6aa_e42f6cdce4be3a3e.png" alt="hand stitching leather detail" />
+                        </div>
+                        <div>
+                            <h4 class="font-serif text-xl">Saddle Stitching</h4>
+                            <p class="text-[11px] text-brand-muted leading-relaxed mt-1">Traditional two-needle hand sewing for lifetime durability.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Lifestyle Image -->
+                <div class="relative rounded-jumbo overflow-hidden aspect-[3/4] shadow-2xl">
+                    <img class="w-full h-full object-cover" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/gen_1c9a2769bf_2eab9d6cd6ce4f6c.png" alt="close up lifestyle of artisan hands finishing a bag" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                    <div class="absolute bottom-8 left-8 text-white">
+                        <p class="text-[9px] uppercase tracking-widest font-bold">Discover the Piece</p>
+                        <h4 class="font-serif text-2xl mt-1">The Atelier Tote</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Journal & Concierge (Combined Compact) -->
+    <section class="py-20 bg-brand-elevated border-t border-brand-border">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20">
+                <!-- Journal Column -->
+                <div class="space-y-8">
+                    <div class="flex justify-between items-center">
+                        <h2 class="font-serif text-4xl">Journal</h2>
+                        <a href="#" class="text-[9px] uppercase font-bold tracking-[0.2em] border-b border-brand-accent pb-0.5">Read All</a>
+                    </div>
+                    <div class="space-y-6">
+                        <article class="flex gap-6 group cursor-pointer">
+                            <div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
+                                <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/gen_881809e59a_0f19e74ae88663c6.png" alt="aged leather patina close up" />
+                            </div>
+                            <div class="flex flex-col justify-center">
+                                <p class="text-[9px] text-brand-faint uppercase font-bold tracking-widest">Care &middot; 4 min</p>
+                                <h4 class="font-serif text-lg group-hover:text-brand-accent transition-colors">The Beauty of Patina</h4>
+                            </div>
+                        </article>
+                        <article class="flex gap-6 group cursor-pointer">
+                            <div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
+                                <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/gen_41dc523e5c_3c759a4a5dda9684.png" alt="nairobi street editorial fashion" />
+                            </div>
+                            <div class="flex flex-col justify-center">
+                                <p class="text-[9px] text-brand-faint uppercase font-bold tracking-widest">Culture &middot; 6 min</p>
+                                <h4 class="font-serif text-lg group-hover:text-brand-accent transition-colors">Nairobi Style Edit</h4>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+
+                <!-- Concierge Column -->
+                <div id="concierge" class="bg-brand-surface p-10 rounded-jumbo border border-brand-border/50 relative overflow-hidden">
+                    <div class="relative z-10 space-y-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[10px] uppercase tracking-[0.3em] text-brand-gold font-bold mb-1">Private Service</p>
+                                <h2 class="font-serif text-3xl">Concierge</h2>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[9px] text-brand-faint uppercase font-bold tracking-widest">Live Status</p>
+                                <p class="text-[11px] font-bold text-emerald-700" id="ticker">Available Now</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-brand-muted leading-relaxed font-light">Direct assistance for bespoke commissions, gifting, and express global shipping via WhatsApp.</p>
+                        <div class="pt-2 flex flex-wrap gap-4">
+                            <a href="#" class="bg-brand-accent text-white px-8 py-3 rounded-full text-[10px] uppercase font-bold tracking-widest hover:bg-brand-gold transition-all duration-300">
+                                Contact via WhatsApp
+                            </a>
+                        </div>
+                        <div class="grid grid-cols-2 gap-6 pt-4 border-t border-brand-border/50">
+                            <div>
+                                <p class="text-[9px] text-brand-faint uppercase font-bold mb-1">Nairobi</p>
+                                <p class="text-xs font-bold">Same Day Delivery</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-brand-faint uppercase font-bold mb-1">Global</p>
+                                <p class="text-xs font-bold">3–5 Days FedEx</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute -right-12 -bottom-12 opacity-5 scale-150 rotate-12">
+                        <i class="fas fa-gem text-[12rem]"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer (Refined & Compact) -->
+    <footer class="pt-20 pb-10 px-6 bg-brand-bg">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="font-serif text-5xl md:text-8xl tracking-tighter text-brand-accent opacity-90">ILONITO</h2>
+                <p class="text-[9px] uppercase tracking-[0.6em] text-brand-faint font-bold mt-2">Nairobi &middot; London &middot; New York</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-12 border-t border-brand-border py-12">
+                <div class="space-y-4">
+                    <h4 class="font-bold uppercase text-[10px] tracking-widest text-brand-accent">Atelier</h4>
+                    <ul class="space-y-2 text-brand-muted text-[11px] uppercase tracking-widest">
+                        <li><a href="#" class="hover:text-brand-gold transition-colors">New Arrivals</a></li>
+                        <li><a href="#" class="hover:text-brand-gold transition-colors">Handbags</a></li>
+                        <li><a href="#" class="hover:text-brand-gold transition-colors">Bespoke</a></li>
+                    </ul>
+                </div>
+                <div class="space-y-4">
+                    <h4 class="font-bold uppercase text-[10px] tracking-widest text-brand-accent">Maison</h4>
+                    <ul class="space-y-2 text-brand-muted text-[11px] uppercase tracking-widest">
+                        <li><a href="#" class="hover:text-brand-gold transition-colors">Our Story</a></li>
+                        <li><a href="#" class="hover:text-brand-gold transition-colors">Craftsmanship</a></li>
+                        <li><a href="#" class="hover:text-brand-gold transition-colors">Journal</a></li>
+                    </ul>
+                </div>
+                <div class="space-y-4">
+                    <h4 class="font-bold uppercase text-[10px] tracking-widest text-brand-accent">Client Care</h4>
+                    <ul class="space-y-2 text-brand-muted text-[11px] uppercase tracking-widest">
+                        <li><a href="#" class="hover:text-brand-gold transition-colors">Contact</a></li>
+                        <li><a href="#" class="hover:text-brand-gold transition-colors">Shipping</a></li>
+                        <li><a href="#" class="hover:text-brand-gold transition-colors">Care Guide</a></li>
+                    </ul>
+                </div>
+                <div class="space-y-4">
+                    <h4 class="font-bold uppercase text-[10px] tracking-widest text-brand-accent">Newsletter</h4>
+                    <form class="relative">
+                        <input type="email" placeholder="YOUR EMAIL" class="w-full bg-transparent border-b border-brand-border py-2 focus:outline-none focus:border-brand-accent transition-colors text-[10px] uppercase tracking-[0.2em]">
+                        <button type="submit" class="absolute right-0 bottom-2 text-brand-accent hover:text-brand-gold transition-colors"><i class="fas fa-arrow-right text-[10px]"></i></button>
+                    </form>
+                    <p class="text-[9px] text-brand-faint leading-relaxed uppercase tracking-widest">Subscribe for private drops.</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-between items-center text-[9px] uppercase tracking-[0.2em] text-brand-faint border-t border-brand-border pt-8 mt-4">
+                <p>&copy; 2026 Ilonito Atelier. Nairobi, Kenya.</p>
+                <div class="flex gap-6 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-brand-accent transition-colors">Privacy</a>
+                    <a href="#" class="hover:text-brand-accent transition-colors">Terms</a>
+                    <a href="#" class="hover:text-brand-accent transition-colors">Instagram</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const tickerTexts = ["Available Now", "Reply within 2 min", "WhatsApp Live"];
+        let tickerIdx = 0;
+        const tickerEl = document.getElementById('ticker');
+        setInterval(() => {
+            tickerIdx = (tickerIdx + 1) % tickerTexts.length;
+            tickerEl.style.opacity = '0';
+            tickerEl.style.transition = 'opacity 0.5s ease-in-out';
+            setTimeout(() => {
+                tickerEl.textContent = tickerTexts[tickerIdx];
+                tickerEl.style.opacity = '1';
+            }, 500);
+        }, 4000);
+    </script>
+</body>
+</html>

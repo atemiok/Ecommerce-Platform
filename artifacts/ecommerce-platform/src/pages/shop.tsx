@@ -1,63 +1,63 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation } from 'wouter';
-import { Filter, Search, SlidersHorizontal, X } from 'lucide-react';
-import { getListProductsQueryKey, useListCategories, useListProducts } from '@workspace/api-client-react';
-import { ProductCard } from '@/components/product-card';
+import { Link, useLocation } from 'wouter';
+import type { Product } from '@workspace/api-client-react';
+import { useListProducts } from '@workspace/api-client-react';
+import { useCart } from '@/hooks/use-cart';
+import { formatKes } from '@/lib/format';
 
-function SkeletonGrid() {
-  return <div className="grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">{[1, 2, 3, 4, 5, 6].map((item) => <div key={item} className="animate-pulse"><div className="aspect-[4/5] rounded-[1.1rem] bg-muted" /><div className="mt-4 h-3 w-20 rounded bg-muted" /><div className="mt-2 h-4 w-36 rounded bg-muted" /></div>)}</div>;
+type MainCategory = 'All' | 'Bags' | 'Accessories';
+const mainCategories: MainCategory[] = ['All', 'Bags', 'Accessories'];
+
+function FilterList({ products, category, query, onCategory, onQuery }: { products: Product[]; category: string; query: string; onCategory: (value: string) => void; onQuery: (value: string) => void }) {
+  const categories = ['All', ...Array.from(new Set(products.map((product) => product.category)))];
+  return <div className="filter-list"><h2>Filter products</h2>{categories.map((item) => <button className={category === item ? 'selected' : ''} onClick={() => onCategory(item)} key={item}>{item}<span>{item === 'All' ? products.length : products.filter((product) => product.category === item).length}</span></button>)}<h2>Search</h2><div className="filter-search"><input value={query} onChange={(event) => onQuery(event.target.value)} placeholder="Product name" aria-label="Search products" /><span>⌕</span></div></div>;
 }
 
 export default function Shop() {
-  const [location] = useLocation();
-  const paramsFromUrl = useMemo(() => new URLSearchParams(location.split('?')[1] ?? ''), [location]);
-  const initialSearch = paramsFromUrl.get('search') ?? '';
-  const initialCategory = paramsFromUrl.get('category') ?? '';
-  const [search, setSearch] = useState(initialSearch);
-  const [category, setCategory] = useState(initialCategory);
-  const [featured, setFeatured] = useState(paramsFromUrl.get('featured') === 'true');
-  const [sort, setSort] = useState('curated');
+  const [location, setLocation] = useLocation();
+  const productsQuery = useListProducts();
+  const products = productsQuery.data ?? [];
+  const params = useMemo(() => new URLSearchParams(location.split('?')[1] ?? ''), [location]);
+  const requestedCategory = params.get('category') ?? 'All';
+  const [main, setMain] = useState<MainCategory>(requestedCategory === 'Accessories' ? 'Accessories' : requestedCategory !== 'All' ? 'Bags' : 'All');
+  const [category, setCategory] = useState(requestedCategory);
+  const [sort, setSort] = useState('featured');
+  const [query, setQuery] = useState(params.get('search') ?? '');
+  const [currency, setCurrency] = useState<'KES' | 'USD'>('KES');
+  const [columns, setColumns] = useState(4);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [selected, setSelected] = useState<Product | null>(null);
+  const cart = useCart();
+
   useEffect(() => {
-    setSearch(initialSearch);
-    setCategory(initialCategory);
-    setFeatured(paramsFromUrl.get('featured') === 'true');
-  }, [initialCategory, initialSearch, paramsFromUrl]);
-  const params = useMemo(() => ({ ...(search.trim() ? { search: search.trim() } : {}), ...(category ? { category } : {}), ...(featured ? { featured: true } : {}) }), [search, category, featured]);
-  const productsQuery = useListProducts(params, { query: { queryKey: getListProductsQueryKey(params) } });
-  const categoriesQuery = useListCategories();
-  const products = useMemo(() => [...(productsQuery.data ?? [])].sort((a, b) => sort === 'price-low' ? a.price - b.price : sort === 'price-high' ? b.price - a.price : sort === 'rating' ? b.rating - a.rating : 0), [productsQuery.data, sort]);
+    const slugOrId = params.get('product');
+    if (slugOrId) setSelected(products.find((product) => String(product.id) === slugOrId || product.slug === slugOrId) ?? null);
+    else setSelected(null);
+  }, [params, products]);
 
-  return (
-    <div className="page-shell py-12 md:py-16">
-      <div className="flex flex-wrap items-end justify-between gap-6">
-        <div>
-          <p className="mb-4 font-mono-ui text-[10px] uppercase tracking-[0.2em] text-muted-foreground">The iLonito collection / {productsQuery.data?.length ?? '—'} pieces</p>
-          <h1 className="font-display text-6xl leading-[.85] tracking-tight md:text-8xl">Carry your story.</h1>
-        </div>
-        <p className="max-w-[240px] text-sm leading-6 text-muted-foreground">Handmade in Kenya. Bold leather pieces designed to grow more personal with every journey.</p>
-      </div>
+  const visible = useMemo(() => {
+    const result = products.filter((product) => {
+      const isMainMatch = main === 'All' || (main === 'Accessories' ? product.category.toLowerCase().includes('accessor') : !product.category.toLowerCase().includes('accessor'));
+      const isCategoryMatch = category === 'All' || product.category.toLowerCase() === category.toLowerCase();
+      const isQueryMatch = !query.trim() || `${product.name} ${product.description} ${product.category}`.toLowerCase().includes(query.trim().toLowerCase());
+      return isMainMatch && isCategoryMatch && isQueryMatch;
+    });
+    return result.sort((a, b) => sort === 'price-low' ? a.price - b.price : sort === 'price-high' ? b.price - a.price : sort === 'rating' ? b.rating - a.rating : Number(b.featured) - Number(a.featured));
+  }, [category, main, products, query, sort]);
 
-      <div className="mt-12 border-y border-border py-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex min-w-[220px] flex-1 items-center gap-2 border-b border-foreground/30 py-2 focus-within:border-accent sm:max-w-xs">
-            <Search className="h-4 w-4 text-muted-foreground" />
-            <input value={search} onChange={(event) => setSearch(event.target.value)} className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground" placeholder="Search iLonito leather" aria-label="Search iLonito leather" data-testid="input-shop-search" />
-            {search && <button onClick={() => setSearch('')} aria-label="Clear search" className="text-muted-foreground hover:text-foreground" data-testid="button-clear-search"><X className="h-4 w-4" /></button>}
-          </div>
-          <button onClick={() => setFiltersOpen((open) => !open)} className={`inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-xs transition-colors ${filtersOpen ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:border-primary'}`} data-testid="button-toggle-filters"><SlidersHorizontal className="h-3.5 w-3.5" /> Filter</button>
-          <label className="ml-auto flex items-center gap-2 text-xs text-muted-foreground"><span className="hidden sm:inline">Sort by</span><select value={sort} onChange={(event) => setSort(event.target.value)} className="bg-transparent py-2 font-medium text-foreground outline-none" aria-label="Sort products" data-testid="select-sort-products"><option value="curated">Curated</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option><option value="rating">Top rated</option></select></label>
-        </div>
-        {filtersOpen && <div className="animate-fade flex flex-wrap items-center gap-2 pt-5">
-          <button onClick={() => setFeatured((value) => !value)} className={`rounded-full border px-3 py-2 text-xs ${featured ? 'border-accent bg-accent text-accent-foreground' : 'border-border hover:border-primary'}`} data-testid="button-filter-featured"><Filter className="mr-1 inline h-3 w-3" /> Featured only</button>
-          <button onClick={() => setCategory('')} className={`rounded-full border px-3 py-2 text-xs ${!category ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:border-primary'}`} data-testid="button-filter-all">All categories</button>
-          {(categoriesQuery.data ?? []).map((item) => <button key={item.slug} onClick={() => setCategory(item.slug)} className={`rounded-full border px-3 py-2 text-xs ${category === item.slug ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:border-primary'}`} data-testid={`button-filter-${item.slug}`}>{item.name}</button>)}
-        </div>}
-      </div>
-      {category && <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">Showing <span className="font-medium text-foreground">{category}</span><button onClick={() => setCategory('')} className="rounded-full p-1 hover:bg-muted" aria-label="Remove category filter" data-testid="button-remove-category"><X className="h-3 w-3" /></button></div>}
-      <div className="mt-10">
-        {productsQuery.isLoading ? <SkeletonGrid /> : productsQuery.isError ? <div className="rounded-2xl border border-border bg-card px-6 py-16 text-center" data-testid="status-shop-error"><p className="font-display text-4xl">The collection is out of reach.</p><p className="mt-2 text-sm text-muted-foreground">We couldn't load the shelves. Please try again.</p><button onClick={() => productsQuery.refetch()} className="mt-6 rounded-full bg-primary px-5 py-3 text-sm text-primary-foreground" data-testid="button-retry-products">Try again</button></div> : products.length ? <div className="grid gap-x-5 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">{products.map((product, index) => <ProductCard key={product.id} product={product} index={index} />)}</div> : <div className="rounded-2xl border border-border bg-card px-6 py-20 text-center" data-testid="status-shop-empty"><p className="font-display text-5xl">Nothing quite yet.</p><p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-muted-foreground">Try a different search, or clear the filters to see the full collection.</p><button onClick={() => { setSearch(''); setCategory(''); setFeatured(false); }} className="mt-7 rounded-full bg-primary px-5 py-3 text-sm text-primary-foreground" data-testid="button-reset-filters">Reset filters</button></div>}
-      </div>
-    </div>
-  );
+  const price = (amount: number) => currency === 'KES' ? formatKes(amount) : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount / 130);
+  const chooseMain = (next: MainCategory) => { setMain(next); setCategory(next === 'Accessories' ? 'Accessories' : 'All'); };
+
+  return <section>
+    <header className="shop-hero"><p className="quiet-label">The iLonito collection</p><h1>Leather made for living.</h1><p>Bold, useful pieces handmade in Kenya, and designed to become more personal with every journey.</p></header>
+    <section className="shop-wrap">
+      <div className="shop-categories">{mainCategories.map((item) => <button className={main === item ? 'selected' : ''} onClick={() => chooseMain(item)} key={item}>{item}</button>)}</div>
+      <div className="shop-toolbar"><span className="product-count">{visible.length ? `1 - ${visible.length} / ${visible.length}` : '0 products'}</span><div className="view-switch"><span>View</span>{[2, 3, 4].map((number) => <button className={columns === number ? 'chosen' : ''} onClick={() => setColumns(number)} key={number}>{number}</button>)}</div><div className="currency-switch" aria-label="Choose currency"><button className={currency === 'KES' ? 'chosen' : ''} onClick={() => setCurrency('KES')}>KES</button><button className={currency === 'USD' ? 'chosen' : ''} onClick={() => setCurrency('USD')}>USD</button></div><label><span>Sort</span><select value={sort} onChange={(event) => setSort(event.target.value)}><option value="featured">Default sorting</option><option value="rating">Top rated</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option></select></label><button className="filter-trigger" onClick={() => setFiltersOpen(true)}><span aria-hidden="true">☷</span> Filter</button></div>
+      <div className="shop-layout"><aside><p>Filter products</p><FilterList products={products} category={category} query={query} onCategory={setCategory} onQuery={setQuery} /></aside><div className="shop-results">{productsQuery.isLoading ? <div className="catalog-grid cols-4">{[1, 2, 3, 4].map((item) => <div className="catalog-card placeholder-card" key={item}><div /></div>)}</div> : productsQuery.isError ? <div className="empty-state"><h2>We could not load the collection</h2><p>Please try again.</p><button onClick={() => productsQuery.refetch()}>Try again</button></div> : visible.length ? <div className={`catalog-grid cols-${columns}`}>{visible.map((product) => <button className="catalog-card" onClick={() => { setSelected(product); setLocation(`/shop?product=${product.id}`); }} key={product.id} data-testid={`card-shop-product-${product.id}`}><div><img src={product.imageUrl} alt={product.name} />{product.badge && <em>{product.badge}</em>}<span>Quick view</span></div><h2>{product.name}</h2><p>{price(product.price)}</p><small>{product.description}</small></button>)}</div> : <div className="empty-state"><h2>No products found</h2><p>Try another category or search.</p><button onClick={() => { setQuery(''); setCategory('All'); setMain('All'); }}>Clear filters</button></div>}<p className="price-note">KES is charged at checkout. USD prices are estimates for international customers.</p></div></div>
+      <div className={`filter-drawer ${filtersOpen ? 'open' : ''}`} aria-hidden={!filtersOpen}><button className="drawer-close" onClick={() => setFiltersOpen(false)} aria-label="Close filters">×</button><FilterList products={products} category={category} query={query} onCategory={setCategory} onQuery={setQuery} /><button className="apply-filters" onClick={() => setFiltersOpen(false)}>Show {visible.length} products</button></div>{filtersOpen && <button className="drawer-shade" onClick={() => setFiltersOpen(false)} aria-label="Close filters" />}
+    </section>
+    {selected && <div className="quickview-backdrop" onClick={() => { setSelected(null); setLocation('/shop'); }}><article className="quickview" onClick={(event) => event.stopPropagation()}><button className="quickview-close" onClick={() => { setSelected(null); setLocation('/shop'); }} aria-label="Close">×</button><img src={selected.imageUrl} alt={selected.name} /><div className="quickview-copy"><p>{selected.category}</p><h2>{selected.name}</h2><strong>{price(selected.price)}</strong><span>{selected.description}</span><button className="quickview-add" onClick={() => { cart.addItem(selected); setSelected(null); setLocation('/shop'); }}>Add to bag <i>+</i></button><Link href={`/product/${selected.id}`}>View details</Link><a className="quickview-whatsapp" href={wa(`Hello iLonito, I am interested in the ${selected.name}, shown at ${price(selected.price)}.`)} target="_blank" rel="noreferrer">Ask on WhatsApp</a><small>Local delivery and international shipping available</small></div></article></div>}
+  </section>;
 }
+
+const wa = (message: string) => `https://wa.me/254714075180?text=${encodeURIComponent(message)}`;

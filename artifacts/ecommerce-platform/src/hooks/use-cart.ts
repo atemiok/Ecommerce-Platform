@@ -6,8 +6,8 @@ export interface CartLine {
   quantity: number;
 }
 
-const STORAGE_KEY = 'northstar-market-cart';
-const CART_EVENT = 'northstar-cart-updated';
+const STORAGE_KEY = 'ilonito-cart';
+const CART_EVENT = 'ilonito-cart-updated';
 
 function readCart(): CartLine[] {
   try {

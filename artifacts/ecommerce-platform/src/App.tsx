@@ -10,6 +10,8 @@ import ProductPage from '@/pages/product';
 import Cart from '@/pages/cart';
 import Checkout from '@/pages/checkout';
 import OrderSuccess from '@/pages/order-success';
+import About from '@/pages/about';
+import Contact from '@/pages/contact';
 import { StoreShell } from '@/components/store-shell';
 import {
   Route,
@@ -29,6 +31,8 @@ function Router() {
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/shop" component={Shop} />
+          <Route path="/about" component={About} />
+          <Route path="/contact" component={Contact} />
           <Route path="/product/:id" component={ProductPage} />
           <Route path="/cart" component={Cart} />
           <Route path="/checkout" component={Checkout} />

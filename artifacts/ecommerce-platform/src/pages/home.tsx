@@ -1,90 +1,77 @@
 import { Link } from 'wouter';
-import { ArrowRight, MapPin, MessageCircle, PackageCheck, Sparkles } from 'lucide-react';
-import { useGetStorefrontSummary, useListCategories } from '@workspace/api-client-react';
-import { ProductCard } from '@/components/product-card';
+import { useListCategories, useListProducts } from '@workspace/api-client-react';
 
-function ProductSkeleton() {
-  return <div className="animate-pulse"><div className="aspect-[4/5] rounded-sm bg-muted" /><div className="mt-4 h-3 w-20 rounded bg-muted" /><div className="mt-2 h-4 w-36 rounded bg-muted" /></div>;
+const whatsapp = 'https://wa.me/254714075180';
+const wa = (message: string) => `${whatsapp}?text=${encodeURIComponent(message)}`;
+const money = (amount: number) => new Intl.NumberFormat('en-KE', { style: 'currency', currency: 'KES', maximumFractionDigits: 0 }).format(amount);
+
+const categoryImages = [
+  { no: '01', name: 'Handbags', image: '/source-assets/product-nia.png' },
+  { no: '02', name: 'Travel', image: '/source-assets/product-zuri.png' },
+  { no: '03', name: 'Office', image: '/source-assets/product-amani.png' },
+  { no: '04', name: 'Accessories', image: '/source-assets/craft.png' },
+];
+
+function HomeProductCard({ product }: { product: { id: number; name: string; price: number; imageUrl: string; description: string } }) {
+  return (
+    <Link className="product-card" href={`/product/${product.id}`} data-testid={`link-home-product-${product.id}`}>
+      <div className="product-photo"><img src={product.imageUrl} alt={product.name} /><i /></div>
+      <h3>{product.name}</h3>
+      <p>{money(product.price)}</p>
+      <small>{product.description}</small>
+    </Link>
+  );
 }
 
-const whatsappUrl = 'https://wa.me/254714075180';
-
 export default function Home() {
-  const summaryQuery = useGetStorefrontSummary();
+  const productsQuery = useListProducts();
   const categoriesQuery = useListCategories();
-  const summary = summaryQuery.data;
-  const categories = categoriesQuery.data ?? [];
+  const products = productsQuery.data ?? [];
+  const featured = products.filter((product) => product.featured);
+  const release = (featured.length ? featured : products).slice(0, 4);
+  const categories = categoriesQuery.data?.length
+    ? categoriesQuery.data.slice(0, 4).map((category, index) => ({ ...categoryImages[index % categoryImages.length], name: category.name }))
+    : categoryImages;
 
   return (
     <div>
-      <section className="relative min-h-[690px] overflow-hidden bg-primary text-primary-foreground">
-        <img src="/images/ilonito/hero.jpg" alt="iLonito leather tote in Narok light" className="absolute inset-0 h-full w-full object-cover object-center opacity-60" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,hsl(var(--primary))_4%,hsl(var(--primary)/.77)_46%,hsl(var(--primary)/.12)_100%)]" />
-        <div className="page-shell relative z-10 flex min-h-[690px] items-end py-14 md:items-center md:py-20">
-          <div className="max-w-2xl animate-rise">
-            <p className="mb-7 flex items-center gap-2 font-mono-ui text-[10px] uppercase tracking-[.25em] text-secondary"><Sparkles className="h-3.5 w-3.5" /> Kenyan luxury leather</p>
-            <h1 className="font-display text-[clamp(4.8rem,11vw,10.5rem)] leading-[.78] tracking-[-.055em]">Made to<br /><em className="text-secondary">carry</em> stories.</h1>
-            <p className="mt-9 max-w-md text-base leading-7 text-primary-foreground/75">Bold, timeless leather bags and accessories, handmade in Kenya for the lives you are building.</p>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <Link href="/shop" className="inline-flex items-center gap-3 bg-secondary px-6 py-3.5 text-sm font-medium text-secondary-foreground transition-transform hover:-translate-y-0.5" data-testid="link-hero-shop">Explore the collection <ArrowRight className="h-4 w-4" /></Link>
-              <a href={whatsappUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 border border-primary-foreground/30 px-5 py-3.5 text-sm transition-colors hover:bg-primary-foreground hover:text-primary"><MessageCircle className="h-4 w-4" /> Order on WhatsApp</a>
-            </div>
-          </div>
+      <header className="hero" id="top">
+        <img src="/source-assets/hero.png" alt="Model holding a structured iLonito leather tote bag" />
+        <div className="hero-overlay" />
+        <div className="hero-inner"><div className="hero-copy">
+          <p className="gold-label">Kenyan leather brand</p>
+          <h1>Leather bags,<br />made in Kenya.</h1>
+          <p className="hero-subtitle">Bold design. Skilled hands. Made to last.</p>
+          <Link className="pill-button" href="/shop">Shop now <span>›</span></Link>
+        </div></div>
+      </header>
+
+      <div className="marquee"><div><span>Narok Atelier — Handcrafted in Kenya — African Luxury</span><span>Narok Atelier — Handcrafted in Kenya — African Luxury</span></div></div>
+
+      <section className="collections">
+        <div className="container">
+          <div className="section-heading"><div><p className="quiet-label">Latest release</p><h2>New Collection</h2></div><Link className="micro-link" href="/shop">View Catalogue</Link></div>
+          {productsQuery.isLoading ? <div className="product-grid">{[1, 2, 3, 4].map((item) => <div className="product-card placeholder-card" key={item}><div className="product-photo" /></div>)}</div> : <div className="product-grid">{release.map((product) => <HomeProductCard key={product.id} product={product} />)}</div>}
         </div>
       </section>
 
-      <section className="page-shell grid gap-10 py-20 md:grid-cols-[.9fr_1.1fr] md:py-28">
-        <div className="overflow-hidden bg-muted"><img src="/images/ilonito/craft.jpg" alt="Hands working with leather" className="h-full min-h-[440px] w-full object-cover" /></div>
-        <div className="flex flex-col justify-center md:pl-10">
-          <p className="mb-5 font-mono-ui text-[10px] uppercase tracking-[.22em] text-muted-foreground">01 / Our leather, our hands</p>
-          <h2 className="max-w-lg font-display text-5xl leading-[.9] tracking-tight md:text-7xl">Born in Kenya.<br />Built for everywhere.</h2>
-          <p className="mt-7 max-w-lg text-base leading-7 text-muted-foreground">iLonito creates small-batch leather pieces that feel at home in Narok, Nairobi, and wherever the road leads. Every stitch, edge, and hand-finished surface is made with purpose.</p>
-          <a href="#leather-care" className="mt-8 inline-flex w-fit items-center gap-2 border-b border-accent pb-2 text-sm text-foreground hover:text-accent">Learn about leather care <ArrowRight className="h-4 w-4" /></a>
-        </div>
-      </section>
+      <section className="category-band"><div className="category-grid">
+        {categories.map((category, index) => <Link className="category-card" href={`/shop?category=${encodeURIComponent(category.name)}`} key={category.name}><img src={category.image} alt={category.name} /><div><span>{String(index + 1).padStart(2, '0')}</span><h3>{category.name}</h3></div></Link>)}
+        <a className="category-card bespoke-card" href={wa('Hello iLonito, I would like to discuss a bespoke leather piece.')} target="_blank" rel="noreferrer"><span>05</span><h3>Bespoke</h3><p>Custom design service</p></a>
+      </div></section>
 
-      <section className="bg-primary py-16 text-primary-foreground md:py-20">
-        <div className="page-shell">
-          <div className="flex flex-wrap items-end justify-between gap-6">
-            <div><p className="mb-4 font-mono-ui text-[10px] uppercase tracking-[.22em] text-secondary">02 / The iLonito collection</p><h2 className="font-display text-5xl leading-none tracking-tight md:text-7xl">Leather with presence.</h2></div>
-            <Link href="/shop?featured=true" className="group inline-flex items-center gap-2 border-b border-secondary pb-2 text-sm text-primary-foreground/80 transition-colors hover:text-secondary">Shop featured pieces <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></Link>
-          </div>
-          {summaryQuery.isLoading ? <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"><ProductSkeleton /><ProductSkeleton /><ProductSkeleton /><ProductSkeleton /></div> : summaryQuery.isError ? <div className="mt-10 border border-primary-foreground/20 p-8"><p className="font-display text-3xl">The collection is taking a moment.</p><p className="mt-2 text-sm text-primary-foreground/60">Please refresh and try again.</p></div> : <div className="mt-10 grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">{(summary?.featuredProducts ?? []).slice(0, 4).map((product, index) => <ProductCard key={product.id} product={product} index={index} />)}</div>}
-        </div>
-      </section>
+      <section className="craft"><div className="craft-grid">
+        <div className="process-copy"><p className="gold-label">How we make it</p><h2>Made slowly and with care.</h2><p>We cut, stitch and finish every leather piece in Kenya. We take our time so each bag looks good and lasts.</p><div className="founder-row"><img src="/source-assets/ilonito-brand-card.jpg" alt="iLonito logo" /><div><strong>Dr. Elizabeth Sanangoi</strong><span>Founder</span></div><Link href="/about">Our story</Link></div></div>
+        <div className="process-list"><article><img src="/source-assets/craft.png" alt="Leather craft close-up" /><div><h4>Good leather</h4><p>We choose leather that feels good and works well for daily use.</p></div></article><article><img src="/source-assets/product-amani.png" alt="Hand-finished leather piece" /><div><h4>Finished by hand</h4><p>Careful work gives every piece its own character.</p></div></article></div>
+        <Link className="atelier-card" href="/shop"><img src="/source-assets/product-zuri.png" alt="iLonito leather bag" /><i /><div><span>View the collection</span><h4>Leather with presence</h4></div></Link>
+      </div></section>
 
-      <section className="page-shell py-20 md:py-28">
-        <div className="grid gap-12 md:grid-cols-[.7fr_1.3fr]">
-          <div><p className="mb-4 font-mono-ui text-[10px] uppercase tracking-[.2em] text-muted-foreground">03 / Shop by craft</p><h2 className="max-w-xs font-display text-5xl leading-[.9] tracking-tight md:text-6xl">Pieces for every path.</h2><p className="mt-6 max-w-xs text-sm leading-6 text-muted-foreground">Bags, wallets, shoes, belts, coasters, beadwork, and journals made with a distinctly Kenyan point of view.</p></div>
-          <div className="border-t border-border">{categoriesQuery.isLoading ? [1, 2, 3].map((item) => <div key={item} className="flex h-20 animate-pulse items-center justify-between border-b border-border"><div className="h-5 w-32 rounded bg-muted" /><div className="h-3 w-16 rounded bg-muted" /></div>) : categories.map((category, index) => <Link href={`/shop?category=${encodeURIComponent(category.slug)}`} key={category.slug} className="group flex items-center justify-between border-b border-border py-5 transition-colors hover:border-primary" data-testid={`link-category-${category.slug}`}><div className="flex items-center gap-5"><span className="font-mono-ui text-[10px] text-muted-foreground">{String(index + 1).padStart(2, '0')}</span><span className="font-display text-3xl md:text-4xl">{category.name}</span></div><div className="flex items-center gap-4"><span className="font-mono-ui text-[10px] uppercase tracking-[.12em] text-muted-foreground">{category.productCount} pieces</span><ArrowRight className="h-4 w-4 -translate-x-2 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" /></div></Link>)}</div>
-        </div>
-      </section>
+      <section className="journal-section"><div className="journal-grid">
+        <div><div className="journal-title"><h2>Leather care</h2><Link href="/about#care">Read more</Link></div><div className="journal-list"><Link href="/about#care"><article><img src="/source-assets/product-amani.png" alt="Leather texture" /><div><p>Care guide</p><h4>Help your leather age well</h4></div></article></Link><Link href="/about"><article><img src="/source-assets/ilonito-award-team.jpeg" alt="iLonito team" /><div><p>Our story</p><h4>Made in Kenya</h4></div></article></Link></div></div>
+        <div className="concierge"><div className="concierge-head"><div><p>Need help?</p><h2>Talk to us</h2></div><div className="live"><span>Status</span><strong>Available now</strong></div></div><p>Ask us about bags, custom orders, gifts or delivery on WhatsApp.</p><a className="concierge-button" href={wa('Hello iLonito, I would like help choosing or ordering a leather piece.')} target="_blank" rel="noreferrer">Chat on WhatsApp</a><div className="delivery-facts"><div><span>Kenya</span><strong>We arrange delivery</strong></div><div><span>Outside Kenya</span><strong>Shipping on request</strong></div></div><b>✦</b></div>
+      </div></section>
 
-      <section id="custom-orders" className="bg-secondary/40">
-        <div className="page-shell grid gap-10 py-20 md:grid-cols-[1.05fr_.95fr] md:py-24">
-          <div className="flex flex-col justify-center"><p className="mb-5 font-mono-ui text-[10px] uppercase tracking-[.22em] text-accent">04 / Custom order</p><h2 className="max-w-xl font-display text-5xl leading-[.9] tracking-tight md:text-7xl">A piece made<br />around you.</h2><p className="mt-7 max-w-lg text-base leading-7 text-muted-foreground">Choose your leather, colour, proportions, and details. We collaborate with you to make a bag, journal, or accessory that carries your story from the first day.</p><a href={whatsappUrl} target="_blank" rel="noreferrer" className="mt-8 inline-flex w-fit items-center gap-2 bg-primary px-6 py-3.5 text-sm text-primary-foreground transition-transform hover:-translate-y-0.5"><MessageCircle className="h-4 w-4" /> Start a custom order</a></div>
-          <div className="overflow-hidden"><img src="/images/ilonito/black-briefcase.jpg" alt="Handcrafted black iLonito leather briefcase" className="h-full min-h-[420px] w-full object-cover" /></div>
-        </div>
-      </section>
-
-      <section id="delivery" className="page-shell grid gap-5 py-20 md:grid-cols-3 md:py-28">
-        <div><PackageCheck className="mb-5 h-7 w-7 text-accent" /><h2 className="font-display text-4xl">Ordering</h2><p className="mt-4 max-w-xs text-sm leading-6 text-muted-foreground">Order online or chat with us on WhatsApp. We’ll confirm availability, payment, and your preferred delivery details personally.</p></div>
-        <div><MapPin className="mb-5 h-7 w-7 text-accent" /><h2 className="font-display text-4xl">Delivery</h2><p className="mt-4 max-w-xs text-sm leading-6 text-muted-foreground">Local delivery is available across Kenya. International shipping is available and quoted for your destination before dispatch.</p></div>
-        <div><Sparkles className="mb-5 h-7 w-7 text-accent" /><h2 className="font-display text-4xl">Custom work</h2><p className="mt-4 max-w-xs text-sm leading-6 text-muted-foreground">For made-to-order pieces, allow time for the craft. We’ll guide you through every material and design decision.</p></div>
-      </section>
-
-      <section id="leather-care" className="bg-primary text-primary-foreground">
-        <div className="page-shell grid gap-10 py-20 md:grid-cols-[.95fr_1.05fr] md:py-24">
-          <div><p className="mb-5 font-mono-ui text-[10px] uppercase tracking-[.22em] text-secondary">05 / Leather care</p><h2 className="font-display text-5xl leading-[.9] md:text-7xl">Care makes<br />the character.</h2></div>
-          <div className="grid content-center gap-5 text-sm leading-7 text-primary-foreground/75"><p>Keep your leather away from prolonged sun and moisture. Store every piece in its dust bag and let it rest between adventures.</p><p>For gentle maintenance, wipe with a soft dry cloth and condition sparingly with a leather-safe balm. Never use harsh household cleaners.</p><p className="border-t border-primary-foreground/20 pt-5 text-primary-foreground">Questions about a piece you own? <a href={`mailto:ilonito@outlook.com`} className="text-secondary underline underline-offset-4">Write to our care team.</a></p></div>
-        </div>
-      </section>
-
-      <section id="visit" className="page-shell grid gap-10 py-20 md:grid-cols-[1fr_.9fr] md:py-28">
-        <div><p className="mb-5 font-mono-ui text-[10px] uppercase tracking-[.22em] text-muted-foreground">06 / Visit & contact</p><h2 className="font-display text-5xl leading-[.9] md:text-7xl">Meet iLonito<br />in Narok.</h2><p className="mt-7 max-w-md text-base leading-7 text-muted-foreground">Visit the studio store, feel the leather, and talk with us about the piece you are looking for.</p></div>
-        <div className="border-t border-border pt-7 text-sm"><div className="grid gap-6"><div><p className="font-mono-ui text-[10px] uppercase tracking-[.16em] text-muted-foreground">Store</p><p className="mt-2 text-lg">1st Floor, Ol Talet Mall, Narok</p></div><div><p className="font-mono-ui text-[10px] uppercase tracking-[.16em] text-muted-foreground">WhatsApp</p><a href={whatsappUrl} target="_blank" rel="noreferrer" className="mt-2 inline-block text-lg underline decoration-accent underline-offset-4">+254 714 075 180</a></div><div><p className="font-mono-ui text-[10px] uppercase tracking-[.16em] text-muted-foreground">Email</p><a href="mailto:ilonito@outlook.com" className="mt-2 inline-block text-lg underline decoration-accent underline-offset-4">ilonito@outlook.com</a></div></div>
-        </div>
-      </section>
+      <section className="instagram-section"><div><p className="quiet-label">Follow our work</p><h2>See iLonito on Instagram</h2><a href="https://www.instagram.com/ilonito_designer_collections" target="_blank" rel="noreferrer">@ilonito_designer_collections ↗</a></div><div className="instagram-grid"><a href="https://www.instagram.com/ilonito_designer_collections" target="_blank" rel="noreferrer"><img src="/source-assets/ilonito-award-team.jpeg" alt="iLonito leather collection" /><span>View work ↗</span></a><a href="https://www.instagram.com/ilonito_designer_collections" target="_blank" rel="noreferrer"><img src="/source-assets/product-nia.png" alt="iLonito handcrafted leather" /><span>View work ↗</span></a><a href="https://www.instagram.com/ilonito_designer_collections" target="_blank" rel="noreferrer"><img src="/source-assets/ilonito-award.jpeg" alt="iLonito team" /><span>View work ↗</span></a></div></section>
     </div>
   );
 }

@@ -1,16 +1,24 @@
 import { useState } from 'react';
 import type { FormEvent, PropsWithChildren } from 'react';
 import { Link, useLocation } from 'wouter';
-import { ArrowRight, Menu, Search, ShoppingBag, X } from 'lucide-react';
-import { useHealthCheck } from '@workspace/api-client-react';
 import { useCart } from '@/hooks/use-cart';
+import { formatKes } from '@/lib/format';
+
+const whatsapp = 'https://wa.me/254714075180';
+const wa = (message: string) => `${whatsapp}?text=${encodeURIComponent(message)}`;
+
+function BagIcon() {
+  return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M6 8h12l1 13H5L6 8Z" /><path d="M9 9V6a3 3 0 0 1 6 0v3" /></svg>;
+}
 
 export function StoreShell({ children }: PropsWithChildren) {
   const [location, setLocation] = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const { itemCount } = useCart();
-  const healthQuery = useHealthCheck();
+  const { items, itemCount, subtotal, updateQuantity, removeItem } = useCart();
+  const links = [{ href: '/shop', label: 'Shop' }, { href: '/contact', label: 'Contact' }, { href: '/about', label: 'About Us' }];
+
   const submitSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLocation(search.trim() ? `/shop?search=${encodeURIComponent(search.trim())}` : '/shop');
@@ -18,76 +26,47 @@ export function StoreShell({ children }: PropsWithChildren) {
   };
 
   return (
-    <div className="grain min-h-[100dvh] bg-background">
-      <div className="bg-primary px-4 py-2 text-center font-mono-ui text-[10px] uppercase tracking-[0.16em] text-primary-foreground">
-        Kenyan-made leather · Local ordering & international shipping
+    <div className="page-shell">
+      <nav className="floating-nav" aria-label="Main navigation">
+        <button className="menu-button" onClick={() => setMenuOpen(true)} aria-label="Open menu" data-testid="button-mobile-menu"><i /><i /></button>
+        <div className="nav-left">
+          <Link className="logo" href="/" aria-label="iLonito home" data-testid="link-home">ILONITO</Link>
+          <ul>{links.map((link) => <li key={link.href}><Link className={location === link.href ? 'active' : ''} href={link.href} data-testid={`link-${link.label.toLowerCase().replace(' ', '-')}`}>{location === link.href && <i />}{link.label}</Link></li>)}</ul>
+        </div>
+        <div className="nav-actions">
+          <a className="nav-enquire" href={wa('Hello iLonito, I would like to enquire about your leather collection.')} target="_blank" rel="noreferrer">Enquire</a>
+          <button className="nav-bag" onClick={() => setCartOpen(true)} aria-label={`Open shopping bag with ${itemCount} items`} data-testid="button-open-cart"><BagIcon /><span>{itemCount}</span></button>
+        </div>
+      </nav>
+
+      <div className={`mobile-menu ${menuOpen ? 'open' : ''}`} aria-hidden={!menuOpen}>
+        <button onClick={() => setMenuOpen(false)} aria-label="Close menu">×</button>
+        <p>ILONITO</p>
+        {links.map((link) => <Link key={link.href} href={link.href} onClick={() => setMenuOpen(false)}>{link.label}</Link>)}
+        <Link href="/cart" onClick={() => setMenuOpen(false)}>Your bag ({itemCount})</Link>
+        <a href="https://www.instagram.com/ilonito_designer_collections" target="_blank" rel="noreferrer">Instagram ↗</a>
+        <a href={whatsapp} target="_blank" rel="noreferrer">WhatsApp ↗</a>
       </div>
-      <header className="sticky top-0 z-40 border-b border-border/80 bg-background/95 backdrop-blur-md">
-        <div className="page-shell flex h-[72px] items-center justify-between gap-5">
-          <Link href="/" className="group flex shrink-0 items-center gap-2.5" data-testid="link-home">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-secondary text-primary transition-transform duration-300 group-hover:rotate-12">
-              <span className="font-display text-lg leading-none">i</span>
-            </span>
-            <span className="font-display text-2xl leading-none tracking-tight">iLonito</span>
-          </Link>
-          <nav className="hidden items-center gap-8 md:flex" aria-label="Main navigation">
-            <Link href="/shop" className={`font-mono-ui text-[11px] uppercase tracking-[0.14em] transition-colors hover:text-accent ${location === '/shop' ? 'text-accent' : 'text-foreground/75'}`} data-testid="link-shop">Shop</Link>
-            <a href="/#custom-orders" className="font-mono-ui text-[11px] uppercase tracking-[0.14em] text-foreground/75 transition-colors hover:text-accent">Custom order</a>
-            <a href="/#visit" className="font-mono-ui text-[11px] uppercase tracking-[0.14em] text-foreground/75 transition-colors hover:text-accent">Visit us</a>
-          </nav>
-          <div className="flex items-center gap-2">
-            <form onSubmit={submitSearch} className="hidden items-center border-b border-foreground/30 px-1 py-1 focus-within:border-accent sm:flex" role="search">
-              <Search className="mr-2 h-4 w-4 text-muted-foreground" />
-              <input value={search} onChange={(event) => setSearch(event.target.value)} className="w-28 bg-transparent text-sm outline-none placeholder:text-muted-foreground/80" placeholder="Search leather" aria-label="Search leather" data-testid="input-header-search" />
-            </form>
-            <Link href="/cart" className="relative grid h-10 w-10 place-items-center rounded-full transition-colors hover:bg-secondary" aria-label={`Cart, ${itemCount} items`} data-testid="link-cart">
-              <ShoppingBag className="h-[19px] w-[19px]" strokeWidth={1.7} />
-              {itemCount > 0 && <span className="absolute right-0.5 top-0.5 grid h-[17px] min-w-[17px] place-items-center rounded-full bg-accent px-1 font-mono-ui text-[9px] font-medium text-accent-foreground" data-testid="text-cart-count">{itemCount}</span>}
-            </Link>
-            <button className="grid h-10 w-10 place-items-center rounded-full transition-colors hover:bg-secondary md:hidden" onClick={() => setMenuOpen((open) => !open)} aria-label={menuOpen ? 'Close menu' : 'Open menu'} data-testid="button-mobile-menu">
-              {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
-        </div>
-        {menuOpen && (
-          <div className="animate-fade border-t border-border bg-card px-4 py-5 md:hidden">
-            <form onSubmit={submitSearch} className="mb-5 flex items-center gap-2 rounded-full border border-border px-4 py-3">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <input autoFocus value={search} onChange={(event) => setSearch(event.target.value)} className="w-full bg-transparent text-sm outline-none" placeholder="Search leather" aria-label="Search leather" data-testid="input-mobile-search" />
-            </form>
-            <div className="grid gap-4">
-              <Link href="/shop" onClick={() => setMenuOpen(false)} className="font-display text-3xl" data-testid="link-mobile-shop">Shop everything</Link>
-              <a href="/#custom-orders" onClick={() => setMenuOpen(false)} className="font-display text-3xl">Custom order</a>
-              <Link href="/cart" onClick={() => setMenuOpen(false)} className="font-display text-3xl" data-testid="link-mobile-cart">Your bag <span className="font-sans text-base text-muted-foreground">({itemCount})</span></Link>
-            </div>
-          </div>
-        )}
-      </header>
+
       <main>{children}</main>
-      <footer className="mt-24 border-t border-border bg-primary text-primary-foreground">
-        <div className="page-shell grid gap-12 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
-          <div>
-            <div className="mb-4 flex items-center gap-2.5">
-              <span className="grid h-8 w-8 place-items-center rounded-full bg-secondary text-primary"><span className="font-display text-base">i</span></span>
-              <span className="font-display text-2xl">iLonito</span>
-            </div>
-            <p className="max-w-xs text-sm leading-6 text-primary-foreground/65">Bold, timeless leather bags and accessories, handmade in Kenya.</p>
+
+      <aside className={`cart-drawer ${cartOpen ? 'open' : ''}`} aria-hidden={!cartOpen} aria-label="Shopping bag">
+        <div className="cart-head"><div><p>Your bag</p><span>{itemCount} {itemCount === 1 ? 'piece' : 'pieces'}</span></div><button onClick={() => setCartOpen(false)} aria-label="Close shopping bag">×</button></div>
+        {items.length ? <><div className="cart-lines">{items.map(({ product, quantity }) => <article key={product.id} data-testid={`drawer-item-${product.id}`}><img src={product.imageUrl} alt={product.name} /><div><span>{product.category}</span><h2>{product.name}</h2><strong>{formatKes(product.price)}</strong><div className="cart-quantity"><button onClick={() => updateQuantity(product.id, quantity - 1)} aria-label={`Remove one ${product.name}`}>−</button><span>{quantity}</span><button onClick={() => updateQuantity(product.id, quantity + 1)} aria-label={`Add one ${product.name}`}>+</button></div></div><button className="cart-remove" onClick={() => removeItem(product.id)}>Remove</button></article>)}</div><div className="cart-foot"><div><span>Subtotal</span><strong>{formatKes(subtotal)}</strong></div><p>Delivery is arranged separately after payment.</p><Link href="/checkout" onClick={() => setCartOpen(false)} data-testid="link-drawer-checkout">Checkout <span>→</span></Link><button onClick={() => setCartOpen(false)}>Continue shopping</button></div></> : <div className="cart-empty"><p>Your bag is empty.</p><span>Choose a handcrafted piece to begin.</span><Link href="/shop" onClick={() => setCartOpen(false)}>Explore the shop</Link></div>}
+      </aside>
+      {cartOpen && <button className="cart-shade" onClick={() => setCartOpen(false)} aria-label="Close shopping bag" />}
+
+      <footer>
+        <div className="container">
+          <div className="footer-wordmark"><h2>ILONITO</h2><p>Narok · Kenya · Worldwide Requests</p></div>
+          <div className="footer-grid">
+            <div><h4>Atelier</h4><Link href="/shop">Shop all</Link><Link href="/shop?category=Handbags">Handbags</Link><a href={wa('Hello iLonito, I would like a bespoke piece.')} target="_blank" rel="noreferrer">Bespoke</a></div>
+            <div><h4>Maison</h4><Link href="/about">Our Story</Link><a href="/about#craft">Craftsmanship</a><a href="/about#care">Care Guide</a></div>
+            <div><h4>Client Care</h4><Link href="/contact">Contact</Link><a href="/contact#shipping">Shipping</a><a href="tel:+254714075180">Call the atelier</a></div>
+            <div><h4>Newsletter</h4><form onSubmit={(event) => { event.preventDefault(); }}><input aria-label="Email for newsletter" placeholder="YOUR EMAIL" type="email" required /><button type="submit">→</button></form><p>Subscribe for private drops.</p></div>
           </div>
-          <div>
-            <p className="mb-4 font-mono-ui text-[10px] uppercase tracking-[0.16em] text-primary-foreground/50">Explore</p>
-            <div className="grid gap-3 text-sm">
-              <Link href="/shop" className="transition-colors hover:text-secondary" data-testid="link-footer-shop">Shop the collection</Link>
-              <a href="/#custom-orders" className="transition-colors hover:text-secondary">Custom order</a>
-              <Link href="/cart" className="transition-colors hover:text-secondary" data-testid="link-footer-cart">Your bag</Link>
-            </div>
-          </div>
-          <div>
-            <p className="mb-4 font-mono-ui text-[10px] uppercase tracking-[0.16em] text-primary-foreground/50">Visit & contact</p>
-            <p className="text-sm leading-6 text-primary-foreground/65">1st Floor, Ol Talet Mall, Narok<br />+254 714 075 180<br />ilonito@outlook.com</p>
-            <a href="https://wa.me/254714075180" target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 border-b border-secondary pb-1 text-sm transition-colors hover:text-secondary">Chat on WhatsApp <ArrowRight className="h-3.5 w-3.5" /></a>
-          </div>
+          <div className="footer-bottom"><p>© {new Date().getFullYear()} iLonito Designer Collections. Narok, Kenya.</p><div><a href="mailto:ilonito@outlook.com">Email</a><a href="tel:+254714075180">Phone</a><a href="https://www.instagram.com/ilonito_designer_collections" target="_blank" rel="noreferrer">Instagram</a></div></div>
         </div>
-        <div className="page-shell flex flex-wrap justify-between gap-3 border-t border-primary-foreground/15 py-5 font-mono-ui text-[10px] uppercase tracking-[0.14em] text-primary-foreground/45"><span>iLonito / Kenyan luxury leather</span><span className="flex items-center gap-2"><span className={`h-1.5 w-1.5 rounded-full ${healthQuery.isError ? 'bg-destructive' : 'bg-secondary'}`} /> {healthQuery.isError ? 'Shop status / reconnecting' : 'Shop status / online'}</span></div>
       </footer>
     </div>
   );
