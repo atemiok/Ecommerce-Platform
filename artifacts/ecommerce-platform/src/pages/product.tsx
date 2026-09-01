@@ -17,8 +17,8 @@ export default function ProductPage() {
   const { addItem } = useCart();
   const relatedQuery = useListProducts(product ? { category: product.category } : undefined, { query: { enabled: !!product, queryKey: ['/api/products', product?.category ?? 'related'] } });
 
-  if (productQuery.isLoading) return <div className="page-shell grid min-h-[70vh] gap-12 py-16 md:grid-cols-2"><div className="animate-pulse aspect-[4/5] rounded-[1.3rem] bg-muted" /><div className="animate-pulse py-10"><div className="h-3 w-24 rounded bg-muted" /><div className="mt-5 h-16 w-3/4 rounded bg-muted" /><div className="mt-8 h-5 w-32 rounded bg-muted" /></div></div>;
-  if (productQuery.isError || !product) return <div className="page-shell flex min-h-[65vh] items-center justify-center py-20 text-center" data-testid="status-product-error"><div><p className="font-display text-6xl">This piece has moved on.</p><p className="mt-3 text-sm text-muted-foreground">It may no longer be in the current iLonito collection.</p><Link href="/shop" className="mt-7 inline-flex rounded-full bg-primary px-5 py-3 text-sm text-primary-foreground" data-testid="link-product-back">Back to the collection</Link></div></div>;
+  if (productQuery.isLoading) return <div className="page-shell product-page grid min-h-[70vh] gap-12 py-16 md:grid-cols-2"><div className="animate-pulse aspect-[4/5] rounded-[1.3rem] bg-muted" /><div className="animate-pulse py-10"><div className="h-3 w-24 rounded bg-muted" /><div className="mt-5 h-16 w-3/4 rounded bg-muted" /><div className="mt-8 h-5 w-32 rounded bg-muted" /></div></div>;
+  if (productQuery.isError || !product) return <div className="page-shell product-page flex min-h-[65vh] items-center justify-center py-20 text-center" data-testid="status-product-error"><div><p className="font-display text-6xl">This piece has moved on.</p><p className="mt-3 text-sm text-muted-foreground">It may no longer be in the current iLonito collection.</p><Link href="/shop" className="mt-7 inline-flex rounded-full bg-primary px-5 py-3 text-sm text-primary-foreground" data-testid="link-product-back">Back to the collection</Link></div></div>;
 
   const add = () => {
     addItem(product, quantity);
@@ -28,7 +28,7 @@ export default function ProductPage() {
   const related = (relatedQuery.data ?? []).filter((item) => item.id !== product.id).slice(0, 3);
 
   return (
-    <div className="page-shell py-8 md:py-12">
+    <div className="page-shell product-page py-8 md:py-12">
       <Link href="/shop" className="mb-8 inline-flex items-center gap-2 text-xs text-muted-foreground transition-colors hover:text-foreground" data-testid="link-product-shop"><ArrowLeft className="h-3.5 w-3.5" /> Back to collection</Link>
       <div className="grid gap-10 md:grid-cols-[minmax(0,.95fr)_minmax(360px,.8fr)] md:gap-20">
         <div className="md:sticky md:top-28 md:self-start"><ProductImage product={product} className="aspect-[4/5] rounded-[1.6rem]" /></div>
