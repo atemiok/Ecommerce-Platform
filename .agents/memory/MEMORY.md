@@ -1,0 +1,1 @@
+- [Clerk web auth transport](clerk-web-auth.md) — web requests use managed same-origin session cookies; authorization remains a separate server-side decision.

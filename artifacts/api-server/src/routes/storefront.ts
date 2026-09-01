@@ -26,6 +26,7 @@ function toProductDto(product: typeof productsTable.$inferSelect) {
     imageUrl: product.imageUrl,
     rating: product.rating,
     reviewCount: product.reviewCount,
+    stockQuantity: product.stockQuantity,
     inStock: product.inStock,
     featured: product.featured,
     badge: product.badge,

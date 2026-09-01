@@ -21,6 +21,7 @@ export interface Product {
   imageUrl: string;
   rating: number;
   reviewCount: number;
+  stockQuantity: number;
   inStock: boolean;
   featured: boolean;
   /** @nullable */
@@ -60,6 +61,81 @@ export interface Order {
   status: string;
   total: number;
   createdAt: string;
+}
+
+export interface AdminProductInput {
+  /** @minLength 1 */
+  name: string;
+  /** @minLength 1 */
+  slug: string;
+  description: string;
+  /** @minimum 0 */
+  price: number;
+  /** @nullable */
+  compareAtPrice?: number | null;
+  /** @minLength 1 */
+  category: string;
+  /** @minLength 1 */
+  imageUrl: string;
+  /**
+     * @minimum 0
+     * @maximum 5
+     */
+  rating?: number;
+  /** @minimum 0 */
+  reviewCount?: number;
+  /** @minimum 0 */
+  stockQuantity: number;
+  inStock: boolean;
+  featured: boolean;
+  /** @nullable */
+  badge?: string | null;
+}
+
+export type AdminProduct = Product;
+
+export interface AdminOrderItem {
+  id: number;
+  productId: number;
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+}
+
+export interface AdminOrder {
+  id: number;
+  customerName: string;
+  email: string;
+  shippingAddress: string;
+  status: string;
+  total: number;
+  createdAt: string;
+  items: AdminOrderItem[];
+}
+
+export type AdminOrderStatusInputStatus = typeof AdminOrderStatusInputStatus[keyof typeof AdminOrderStatusInputStatus];
+
+
+export const AdminOrderStatusInputStatus = {
+  pending: 'pending',
+  confirmed: 'confirmed',
+  processing: 'processing',
+  shipped: 'shipped',
+  delivered: 'delivered',
+  cancelled: 'cancelled',
+} as const;
+
+export interface AdminOrderStatusInput {
+  status: AdminOrderStatusInputStatus;
+}
+
+export interface AdminSummary {
+  totalProducts: number;
+  inStockProducts: number;
+  lowStockProducts: number;
+  pendingOrders: number;
+  revenue: number;
+  recentOrders: AdminOrder[];
 }
 
 export type ListProductsParams = {

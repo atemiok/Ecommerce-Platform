@@ -6,18 +6,28 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface Product {
-  id: number;
+export interface AdminProductInput {
+  /** @minLength 1 */
   name: string;
+  /** @minLength 1 */
   slug: string;
   description: string;
+  /** @minimum 0 */
   price: number;
   /** @nullable */
   compareAtPrice?: number | null;
+  /** @minLength 1 */
   category: string;
+  /** @minLength 1 */
   imageUrl: string;
-  rating: number;
-  reviewCount: number;
+  /**
+     * @minimum 0
+     * @maximum 5
+     */
+  rating?: number;
+  /** @minimum 0 */
+  reviewCount?: number;
+  /** @minimum 0 */
   stockQuantity: number;
   inStock: boolean;
   featured: boolean;

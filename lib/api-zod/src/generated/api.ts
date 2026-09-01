@@ -37,6 +37,7 @@ export const ListProductsResponseItem = zod.object({
   "imageUrl": zod.string(),
   "rating": zod.number(),
   "reviewCount": zod.number(),
+  "stockQuantity": zod.number(),
   "inStock": zod.boolean(),
   "featured": zod.boolean(),
   "badge": zod.string().nullish()
@@ -62,6 +63,7 @@ export const GetProductResponse = zod.object({
   "imageUrl": zod.string(),
   "rating": zod.number(),
   "reviewCount": zod.number(),
+  "stockQuantity": zod.number(),
   "inStock": zod.boolean(),
   "featured": zod.boolean(),
   "badge": zod.string().nullish()
@@ -94,6 +96,7 @@ export const GetStorefrontSummaryResponse = zod.object({
   "imageUrl": zod.string(),
   "rating": zod.number(),
   "reviewCount": zod.number(),
+  "stockQuantity": zod.number(),
   "inStock": zod.boolean(),
   "featured": zod.boolean(),
   "badge": zod.string().nullish()
@@ -127,6 +130,225 @@ export const CreateOrderResponse = zod.object({
   "status": zod.string(),
   "total": zod.number(),
   "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Get admin dashboard summary
+ */
+export const GetAdminSummaryResponse = zod.object({
+  "totalProducts": zod.number(),
+  "inStockProducts": zod.number(),
+  "lowStockProducts": zod.number(),
+  "pendingOrders": zod.number(),
+  "revenue": zod.number(),
+  "recentOrders": zod.array(zod.object({
+  "id": zod.number(),
+  "customerName": zod.string(),
+  "email": zod.string(),
+  "shippingAddress": zod.string(),
+  "status": zod.string(),
+  "total": zod.number(),
+  "createdAt": zod.string(),
+  "items": zod.array(zod.object({
+  "id": zod.number(),
+  "productId": zod.number(),
+  "productName": zod.string(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number()
+}))
+}))
+})
+
+
+/**
+ * @summary List products for administration
+ */
+export const ListAdminProductsResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "description": zod.string(),
+  "price": zod.number(),
+  "compareAtPrice": zod.number().nullish(),
+  "category": zod.string(),
+  "imageUrl": zod.string(),
+  "rating": zod.number(),
+  "reviewCount": zod.number(),
+  "stockQuantity": zod.number(),
+  "inStock": zod.boolean(),
+  "featured": zod.boolean(),
+  "badge": zod.string().nullish()
+})
+export const ListAdminProductsResponse = zod.array(ListAdminProductsResponseItem)
+
+
+/**
+ * @summary Create a product
+ */
+
+
+export const createAdminProductBodyPriceMin = 0;
+
+
+
+export const createAdminProductBodyRatingMin = 0;
+export const createAdminProductBodyRatingMax = 5;
+
+export const createAdminProductBodyReviewCountMin = 0;
+
+export const createAdminProductBodyStockQuantityMin = 0;
+
+
+
+export const CreateAdminProductBody = zod.object({
+  "name": zod.string().min(1),
+  "slug": zod.string().min(1),
+  "description": zod.string(),
+  "price": zod.number().min(createAdminProductBodyPriceMin),
+  "compareAtPrice": zod.number().nullish(),
+  "category": zod.string().min(1),
+  "imageUrl": zod.string().min(1),
+  "rating": zod.number().min(createAdminProductBodyRatingMin).max(createAdminProductBodyRatingMax).optional(),
+  "reviewCount": zod.number().min(createAdminProductBodyReviewCountMin).optional(),
+  "stockQuantity": zod.number().min(createAdminProductBodyStockQuantityMin),
+  "inStock": zod.boolean(),
+  "featured": zod.boolean(),
+  "badge": zod.string().nullish()
+})
+
+export const CreateAdminProductResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "description": zod.string(),
+  "price": zod.number(),
+  "compareAtPrice": zod.number().nullish(),
+  "category": zod.string(),
+  "imageUrl": zod.string(),
+  "rating": zod.number(),
+  "reviewCount": zod.number(),
+  "stockQuantity": zod.number(),
+  "inStock": zod.boolean(),
+  "featured": zod.boolean(),
+  "badge": zod.string().nullish()
+})
+
+
+/**
+ * @summary Update a product
+ */
+export const UpdateAdminProductParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+
+export const updateAdminProductBodyPriceMin = 0;
+
+
+
+export const updateAdminProductBodyRatingMin = 0;
+export const updateAdminProductBodyRatingMax = 5;
+
+export const updateAdminProductBodyReviewCountMin = 0;
+
+export const updateAdminProductBodyStockQuantityMin = 0;
+
+
+
+export const UpdateAdminProductBody = zod.object({
+  "name": zod.string().min(1),
+  "slug": zod.string().min(1),
+  "description": zod.string(),
+  "price": zod.number().min(updateAdminProductBodyPriceMin),
+  "compareAtPrice": zod.number().nullish(),
+  "category": zod.string().min(1),
+  "imageUrl": zod.string().min(1),
+  "rating": zod.number().min(updateAdminProductBodyRatingMin).max(updateAdminProductBodyRatingMax).optional(),
+  "reviewCount": zod.number().min(updateAdminProductBodyReviewCountMin).optional(),
+  "stockQuantity": zod.number().min(updateAdminProductBodyStockQuantityMin),
+  "inStock": zod.boolean(),
+  "featured": zod.boolean(),
+  "badge": zod.string().nullish()
+})
+
+export const UpdateAdminProductResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "description": zod.string(),
+  "price": zod.number(),
+  "compareAtPrice": zod.number().nullish(),
+  "category": zod.string(),
+  "imageUrl": zod.string(),
+  "rating": zod.number(),
+  "reviewCount": zod.number(),
+  "stockQuantity": zod.number(),
+  "inStock": zod.boolean(),
+  "featured": zod.boolean(),
+  "badge": zod.string().nullish()
+})
+
+
+/**
+ * @summary Delete a product
+ */
+export const DeleteAdminProductParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteAdminProductResponse = zod.void()
+
+
+/**
+ * @summary List customer orders
+ */
+export const ListAdminOrdersResponseItem = zod.object({
+  "id": zod.number(),
+  "customerName": zod.string(),
+  "email": zod.string(),
+  "shippingAddress": zod.string(),
+  "status": zod.string(),
+  "total": zod.number(),
+  "createdAt": zod.string(),
+  "items": zod.array(zod.object({
+  "id": zod.number(),
+  "productId": zod.number(),
+  "productName": zod.string(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number()
+}))
+})
+export const ListAdminOrdersResponse = zod.array(ListAdminOrdersResponseItem)
+
+
+/**
+ * @summary Update an order status
+ */
+export const UpdateAdminOrderStatusParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateAdminOrderStatusBody = zod.object({
+  "status": zod.enum(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'])
+})
+
+export const UpdateAdminOrderStatusResponse = zod.object({
+  "id": zod.number(),
+  "customerName": zod.string(),
+  "email": zod.string(),
+  "shippingAddress": zod.string(),
+  "status": zod.string(),
+  "total": zod.number(),
+  "createdAt": zod.string(),
+  "items": zod.array(zod.object({
+  "id": zod.number(),
+  "productId": zod.number(),
+  "productName": zod.string(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number()
+}))
 })
 
 

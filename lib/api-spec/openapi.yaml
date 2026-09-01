@@ -14,6 +14,8 @@ tags:
     description: Customer storefront operations
   - name: orders
     description: Customer order operations
+  - name: admin
+    description: Protected store administration operations
 paths:
   /healthz:
     get:
@@ -124,6 +126,152 @@ paths:
                 $ref: "#/components/schemas/Order"
         "400":
           description: Invalid order
+  /admin/summary:
+    get:
+      operationId: getAdminSummary
+      tags: [admin]
+      summary: Get admin dashboard summary
+      security:
+        - clerkSession: []
+      responses:
+        "200":
+          description: Admin summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSummary"
+  /admin/products:
+    get:
+      operationId: listAdminProducts
+      tags: [admin]
+      summary: List products for administration
+      security:
+        - clerkSession: []
+      responses:
+        "200":
+          description: Admin products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminProduct"
+    post:
+      operationId: createAdminProduct
+      tags: [admin]
+      summary: Create a product
+      security:
+        - clerkSession: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminProductInput"
+      responses:
+        "201":
+          description: Product created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminProduct"
+        "400":
+          description: Invalid product
+        "409":
+          description: Product slug already exists
+  /admin/products/{id}:
+    patch:
+      operationId: updateAdminProduct
+      tags: [admin]
+      summary: Update a product
+      security:
+        - clerkSession: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminProductInput"
+      responses:
+        "200":
+          description: Product updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminProduct"
+        "404":
+          description: Product not found
+        "409":
+          description: Product slug already exists
+    delete:
+      operationId: deleteAdminProduct
+      tags: [admin]
+      summary: Delete a product
+      security:
+        - clerkSession: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Product deleted
+        "404":
+          description: Product not found
+        "409":
+          description: Product is referenced by an order
+  /admin/orders:
+    get:
+      operationId: listAdminOrders
+      tags: [admin]
+      summary: List customer orders
+      security:
+        - clerkSession: []
+      responses:
+        "200":
+          description: Admin orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminOrder"
+  /admin/orders/{id}/status:
+    patch:
+      operationId: updateAdminOrderStatus
+      tags: [admin]
+      summary: Update an order status
+      security:
+        - clerkSession: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminOrderStatusInput"
+      responses:
+        "200":
+          description: Order updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminOrder"
+        "404":
+          description: Order not found
 components:
   schemas:
     HealthStatus:
@@ -135,7 +283,7 @@ components:
         - status
     Product:
       type: object
-      required: [id, name, slug, description, price, category, imageUrl, rating, reviewCount, inStock, featured]
+      required: [id, name, slug, description, price, category, imageUrl, rating, reviewCount, stockQuantity, inStock, featured]
       properties:
         id: { type: number }
         name: { type: string }
@@ -147,6 +295,7 @@ components:
         imageUrl: { type: string }
         rating: { type: number }
         reviewCount: { type: number }
+        stockQuantity: { type: number }
         inStock: { type: boolean }
         featured: { type: boolean }
         badge: { type: ["string", "null"] }
@@ -193,4 +342,73 @@ components:
         status: { type: string }
         total: { type: number }
         createdAt: { type: string }
+    AdminProductInput:
+      type: object
+      required: [name, slug, description, price, category, imageUrl, stockQuantity, inStock, featured]
+      properties:
+        name: { type: string, minLength: 1 }
+        slug: { type: string, minLength: 1 }
+        description: { type: string }
+        price: { type: number, minimum: 0 }
+        compareAtPrice: { type: ["number", "null"] }
+        category: { type: string, minLength: 1 }
+        imageUrl: { type: string, minLength: 1 }
+        rating: { type: number, minimum: 0, maximum: 5 }
+        reviewCount: { type: number, minimum: 0 }
+        stockQuantity: { type: number, minimum: 0 }
+        inStock: { type: boolean }
+        featured: { type: boolean }
+        badge: { type: ["string", "null"] }
+    AdminProduct:
+      allOf:
+        - $ref: "#/components/schemas/Product"
+    AdminOrderItem:
+      type: object
+      required: [id, productId, productName, quantity, unitPrice]
+      properties:
+        id: { type: number }
+        productId: { type: number }
+        productName: { type: string }
+        quantity: { type: number }
+        unitPrice: { type: number }
+    AdminOrder:
+      type: object
+      required: [id, customerName, email, shippingAddress, status, total, createdAt, items]
+      properties:
+        id: { type: number }
+        customerName: { type: string }
+        email: { type: string }
+        shippingAddress: { type: string }
+        status: { type: string }
+        total: { type: number }
+        createdAt: { type: string }
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminOrderItem"
+    AdminOrderStatusInput:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [pending, confirmed, processing, shipped, delivered, cancelled]
+    AdminSummary:
+      type: object
+      required: [totalProducts, inStockProducts, lowStockProducts, pendingOrders, revenue, recentOrders]
+      properties:
+        totalProducts: { type: number }
+        inStockProducts: { type: number }
+        lowStockProducts: { type: number }
+        pendingOrders: { type: number }
+        revenue: { type: number }
+        recentOrders:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminOrder"
+  securitySchemes:
+    clerkSession:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 

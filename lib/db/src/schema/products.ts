@@ -13,6 +13,7 @@ export const productsTable = pgTable("products", {
   imageUrl: text("image_url").notNull(),
   rating: real("rating").notNull().default(4.5),
   reviewCount: integer("review_count").notNull().default(0),
+  stockQuantity: integer("stock_quantity").notNull().default(10),
   inStock: boolean("in_stock").notNull().default(true),
   featured: boolean("featured").notNull().default(false),
   badge: text("badge"),
