@@ -176,6 +176,48 @@ export const GetAdminSummaryResponse = zod.object({
 
 
 /**
+ * @summary Request a product image upload URL
+ */
+
+export const requestStorageUploadUrlBodySizeMax = 10485760;
+
+
+
+export const requestStorageUploadUrlBodyContentTypeRegExp = new RegExp('^image');
+
+
+export const RequestStorageUploadUrlBody = zod.object({
+  "name": zod.string().min(1),
+  "size": zod.number().min(1).max(requestStorageUploadUrlBodySizeMax),
+  "contentType": zod.string().min(1).regex(requestStorageUploadUrlBodyContentTypeRegExp)
+})
+
+
+
+
+
+export const RequestStorageUploadUrlResponse = zod.object({
+  "uploadURL": zod.string().min(1),
+  "objectPath": zod.string().min(1),
+  "metadata": zod.object({
+  "name": zod.string(),
+  "size": zod.number(),
+  "contentType": zod.string()
+})
+})
+
+
+/**
+ * @summary Serve an uploaded object
+ */
+export const GetStorageObjectParams = zod.object({
+  "path": zod.coerce.string()
+})
+
+export const GetStorageObjectResponse = zod.unknown()
+
+
+/**
  * @summary List products for administration
  */
 export const ListAdminProductsResponseItem = zod.object({

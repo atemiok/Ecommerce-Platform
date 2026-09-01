@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth, useClerk } from '@clerk/react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useUpload } from '@workspace/object-storage-web';
 import {
   AdminOrderStatusInputStatus,
   getListAdminOrdersQueryKey,
@@ -42,6 +43,7 @@ import {
   Sparkles,
   Tag,
   Trash2,
+  Upload,
   X,
 } from 'lucide-react';
 import { formatKes } from '@/lib/format';
@@ -108,14 +110,23 @@ function ProductModal({ product, onClose, onSaved }: { product: AdminProduct | n
   const queryClient = useQueryClient();
   const create = useCreateAdminProduct();
   const update = useUpdateAdminProduct();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [draft, setDraft] = useState<ProductDraft>(() => product ? {
     name: product.name, slug: product.slug, description: product.description, price: product.price,
     compareAtPrice: product.compareAtPrice ?? null, category: product.category, imageUrl: product.imageUrl,
     rating: product.rating, reviewCount: product.reviewCount, stockQuantity: product.stockQuantity,
     inStock: product.inStock, featured: product.featured, badge: product.badge ?? null,
   } : emptyDraft);
+  const imageUpload = useUpload();
   const saving = create.isPending || update.isPending;
   const updateField = <K extends keyof ProductDraft>(key: K, value: ProductDraft[K]) => setDraft((current) => ({ ...current, [key]: value }));
+  const uploadImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    const result = await imageUpload.uploadFile(file);
+    if (result) updateField('imageUrl', `/api/storage${result.objectPath}`);
+  };
 
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -141,8 +152,20 @@ function ProductModal({ product, onClose, onSaved }: { product: AdminProduct | n
            <label>Category<input required list="admin-category-options" value={draft.category} onChange={(event) => updateField('category', event.target.value)} data-testid="input-product-category" /><datalist id="admin-category-options">{categories.slice(1).map((category) => <option key={category} value={category} />)}</datalist></label>
           <label>Badge<input value={draft.badge ?? ''} placeholder="e.g. New arrival" onChange={(event) => updateField('badge', event.target.value || null)} data-testid="input-product-badge" /></label>
           <label>Stock quantity<input required min="0" type="number" value={draft.stockQuantity} onChange={(event) => updateField('stockQuantity', Number(event.target.value))} data-testid="input-product-stock" /></label>
-          <label>Image URL<input required type="url" value={draft.imageUrl} onChange={(event) => updateField('imageUrl', event.target.value)} data-testid="input-product-image" /></label>
+           <label>Image URL<input required type="url" value={draft.imageUrl} onChange={(event) => updateField('imageUrl', event.target.value)} placeholder="Upload an image or paste a URL" data-testid="input-product-image" /></label>
         </div>
+         <div className="admin-image-upload">
+           <div className="admin-image-preview">{draft.imageUrl ? <img src={draft.imageUrl} alt="Product preview" /> : <Package size={24} />}</div>
+           <div className="admin-image-upload-copy">
+             <span className="admin-form-label">Product image</span>
+             <p>Use a clear product photo. JPG, PNG, and WebP images work best.</p>
+             <button type="button" className="admin-button admin-button-outline" onClick={() => fileInputRef.current?.click()} disabled={imageUpload.isUploading} data-testid="button-upload-product-image">
+               <Upload size={14} /> {imageUpload.isUploading ? `Uploading ${imageUpload.progress}%` : draft.imageUrl ? 'Replace image' : 'Upload image'}
+             </button>
+             <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={uploadImage} hidden data-testid="input-upload-product-image" />
+             {imageUpload.error && <small className="admin-upload-error">{imageUpload.error.message}</small>}
+           </div>
+         </div>
         <label>Description<textarea required rows={4} value={draft.description} onChange={(event) => updateField('description', event.target.value)} data-testid="input-product-description" /></label>
         <div className="admin-checks">
           <label className="admin-check"><input type="checkbox" checked={draft.inStock} onChange={(event) => updateField('inStock', event.target.checked)} data-testid="checkbox-product-in-stock" /><span>Available to purchase</span></label>

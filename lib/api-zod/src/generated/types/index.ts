@@ -23,4 +23,7 @@ export * from './orderInput';
 export * from './orderItemInput';
 export * from './product';
 export * from './promotion';
+export * from './requestUploadUrlBody';
+export * from './requestUploadUrlResponse';
+export * from './requestUploadUrlResponseMetadata';
 export * from './storefrontSummary';

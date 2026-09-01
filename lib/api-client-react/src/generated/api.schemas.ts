@@ -133,6 +133,35 @@ export interface AdminProductInput {
   badge?: string | null;
 }
 
+export interface RequestUploadUrlBody {
+  /** @minLength 1 */
+  name: string;
+  /**
+     * @minimum 1
+     * @maximum 10485760
+     */
+  size: number;
+  /**
+     * @minLength 1
+     * @pattern ^image/
+     */
+  contentType: string;
+}
+
+export type RequestUploadUrlResponseMetadata = {
+  name: string;
+  size: number;
+  contentType: string;
+};
+
+export interface RequestUploadUrlResponse {
+  /** @minLength 1 */
+  uploadURL: string;
+  /** @minLength 1 */
+  objectPath: string;
+  metadata: RequestUploadUrlResponseMetadata;
+}
+
 export type AdminProduct = Product;
 
 export interface AdminOrderItem {
